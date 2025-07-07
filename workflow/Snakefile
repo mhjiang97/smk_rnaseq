@@ -25,6 +25,8 @@ SAMPLES = DF_SAMPLE["sample_name"]
 SAMPLES_PE = SAMPLES[DF_SAMPLE["library_layout"] == "paired-end"]
 SAMPLES_SE = SAMPLES[DF_SAMPLE["library_layout"] == "single-end"]
 
+DIR_DATA = config["dir_data"]
+
 TO_CLEAN_FQ = config["clean_fq"]
 
 
@@ -34,12 +36,12 @@ TO_CLEAN_FQ = config["clean_fq"]
 targets = [f"salmon/{sample}/quant.sf" for sample in SAMPLES]
 
 if TO_CLEAN_FQ:
-    targets = (
-        targets
-        + [f"fastp/{sample}/{sample}.json" for sample in SAMPLES]
-        + [f"fastqc/fastp/{sample}" for sample in SAMPLES]
-        + ["multiqc/fastp/multiqc_report.html"]
-    )
+    targets += [f"fastp/{sample}/{sample}.json" for sample in SAMPLES] + [
+        f"fastqc/fastp/{sample}" for sample in SAMPLES
+    ]
+
+if config["run_multiqc"]:
+    targets += ["multiqc/fastp/multiqc_report.html"]
 
 
 rule all:
@@ -47,6 +49,9 @@ rule all:
         targets,
 
 
+# *--------------------------------------------------------------------------* #
+# * Include rules                                                            * #
+# *--------------------------------------------------------------------------* #
 include: "rules/fastp.smk"
 include: "rules/qc.smk"
 include: "rules/salmon.smk"
