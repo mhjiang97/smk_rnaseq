@@ -10,3 +10,5 @@ suffix_fastq:
   single-end: ".fq.gz"
 
 clean_fq: true
+
+run_multiqc: false
