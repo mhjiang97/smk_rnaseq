@@ -21,3 +21,7 @@ project/
         ├── fastqc/                # Quality control reports
         └── multiqc/               # Aggregated QC reports
 ```
+
+## License
+
+The code in this repository is licensed under the [GNU General Public License v3](http://www.gnu.org/licenses/gpl-3.0.html).
