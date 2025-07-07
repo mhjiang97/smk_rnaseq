@@ -1,0 +1,52 @@
+# *--------------------------------------------------------------------------* #
+# * Configuration                                                            * #
+# *--------------------------------------------------------------------------* #
+configfile: "config/config.yaml"
+
+
+pepfile: "config/pep/config.yaml"
+
+
+wildcard_constraints:
+    sample=r"[\w-]+",
+
+
+if config["dir_run"] and config["dir_run"] is not None:
+
+    workdir: config["dir_run"]
+
+
+SUFFIXES = config["suffix_fastq"]
+SUFFIX_READ_1, SUFFIX_READ_2 = SUFFIXES["paired-end"]
+SUFFIX_READ_SE = SUFFIXES["single-end"]
+
+DF_SAMPLE = pep.sample_table
+SAMPLES = DF_SAMPLE["sample_name"]
+SAMPLES_PE = SAMPLES[DF_SAMPLE["library_layout"] == "paired-end"]
+SAMPLES_SE = SAMPLES[DF_SAMPLE["library_layout"] == "single-end"]
+
+TO_CLEAN_FQ = config["clean_fq"]
+
+
+# *--------------------------------------------------------------------------* #
+# * Define results to be retrieved                                           * #
+# *--------------------------------------------------------------------------* #
+targets = [f"salmon/{sample}/quant.sf" for sample in SAMPLES]
+
+if TO_CLEAN_FQ:
+    targets = (
+        targets
+        + [f"fastp/{sample}/{sample}.json" for sample in SAMPLES]
+        + [f"fastqc/fastp/{sample}" for sample in SAMPLES]
+        + ["multiqc/fastp/multiqc_report.html"]
+    )
+
+
+rule all:
+    input:
+        targets,
+
+
+include: "rules/fastp.smk"
+include: "rules/qc.smk"
+include: "rules/salmon.smk"

@@ -1,0 +1,8 @@
+printshellcmds: True
+keep-incomplete: True
+cores: 20
+set-threads:
+  salmon: 4
+  fastp_paired_end: 4
+  fastp_single_end: 4
+  fastqc: 4
