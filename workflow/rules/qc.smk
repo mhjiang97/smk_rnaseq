@@ -3,11 +3,11 @@ def get_fastqc_inputs(wildcards):
 
     if sample in SAMPLES_PE:
         return {
-            "fq_1": f"fastp/{sample}/{sample}{SUFFIX_READ_1}",
-            "fq_2": f"fastp/{sample}/{sample}{SUFFIX_READ_2}",
+            "fq_1": "fastp/{sample}/{sample}%s" % SUFFIX_READ_1,
+            "fq_2": "fastp/{sample}/{sample}%s" % SUFFIX_READ_2,
         }
     elif sample in SAMPLES_SE:
-        return {"fq": f"fastp/{sample}/{sample}{SUFFIX_READ_SE}"}
+        return {"fq": "fastp/{sample}/{sample}%s" % SUFFIX_READ_SE}
     else:
         raise ValueError(f"Sample {sample} not found in SAMPLES_PE or SAMPLES_SE.")
 
