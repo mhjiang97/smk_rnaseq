@@ -6,7 +6,7 @@
 
 ```
 project/
-├── data/                          # Raw sequencing data
+├── data/                  # Raw input data
 │   └── rnaseq/
 │       ├── *_R1.fq.gz             # Paired-end forward reads
 │       ├── *_R2.fq.gz             # Paired-end reverse reads
@@ -14,11 +14,11 @@ project/
 ├── code/
 │   └── rnaseq/
 │       └── smk_rnaseq/            # This workflow
-└── analysis/                      # Output directory
+└── analysis/              # Output directory
     └── rnaseq/
         ├── fastp/                 # Trimmed reads
         ├── salmon/                # Transcript quantification
-        ├── fastqc/                # Quality control reports
+        ├── fastqc/                # QC reports
         └── multiqc/               # Aggregated QC reports
 ```
 
