@@ -1,7 +1,7 @@
 rule fastp_paired_end:
     input:
-        fq_1="{sample}/{sample}_1.fastq.gz",
-        fq_2="{sample}/{sample}_2.fastq.gz",
+        fq_1="%s/{sample}%s" % (DIR_DATA, SUFFIX_READ_1),
+        fq_2="%s/{sample}%s" % (DIR_DATA, SUFFIX_READ_2),
     output:
         fq_1="fastp/{sample}/{sample}%s" % SUFFIX_READ_1,
         fq_2="fastp/{sample}/{sample}%s" % SUFFIX_READ_2,
@@ -19,7 +19,7 @@ rule fastp_paired_end:
 
 rule fastp_single_end:
     input:
-        fq="{sample}/{sample}.fastq.gz",
+        fq="%s/{sample}/{sample}%s" % (DIR_DATA, SUFFIX_READ_SE),
     output:
         fq="fastp/{sample}/{sample}%s" % SUFFIX_READ_SE,
         fq_failed="fastp/{sample}/{sample}.failed.fq.gz",
