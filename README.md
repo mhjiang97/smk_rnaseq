@@ -54,7 +54,7 @@ All default values are defined in the validation schema (`config/schemas/config.
 
 ### Execution Profile
 
-The default profile (`workflow/profiles/default/`) configures execution parameters:
+The default profile (`workflow/profiles/default/config.yaml`) configures execution parameters:
 - `printshellcmds`:  True
 - `keep-incomplete`: True
 - `cores`: 20
