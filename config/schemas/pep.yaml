@@ -1,0 +1,15 @@
+description: The schema for smk_rnaseq.
+imports:
+  - http://schema.databio.org/pep/2.0.0.yaml
+properties:
+  samples:
+    type: array
+    items:
+      type: object
+      properties:
+        library_layout:
+          type: string
+          description: Sequencing strategy, must be either "paired-end" or "single-end"
+          enum: [paired-end, single-end]
+      required:
+        - library_layout
