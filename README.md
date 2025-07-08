@@ -52,7 +52,7 @@ The main configuration file (`config/config.yaml`) contains:
 
 All default values are defined in the validation schema (`config/schemas/config.yaml`).
 
-### Execution Profile
+### Profile
 
 The default profile (`workflow/profiles/default/config.yaml`) configures execution parameters:
 - `printshellcmds`:  True
@@ -77,7 +77,7 @@ The sample table must include these mandatory columns:
 
 Another validation schema (`config/schemas/pep.yaml`) ensures that the sample table meets the required format.
 
-## Run the Workflow
+## Execution
 
 After the configuration, you can run it using Snakemake:
 
