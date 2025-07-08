@@ -1,0 +1,14 @@
+dir_run: /home/username/projects/data/sra/PRJNA884735
+dir_data: /home/username/projects/data/sra/PRJNA884735
+
+index_salmon: /home/username/doc/reference/salmon/index
+
+suffix_fastq:
+  paired-end:
+    - "_R1.fq.gz"
+    - "_R2.fq.gz"
+  single-end: ".fq.gz"
+
+clean_fq: true
+
+run_multiqc: true
