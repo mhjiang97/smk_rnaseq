@@ -55,10 +55,10 @@ All default values are defined in the validation schema (`config/schemas/config.
 ### Execution Profile
 
 The default profile (`workflow/profiles/default/`) configures execution parameters:
-- `printshellcmds`:  True # Print out the shell commands that will be executed.
-- `keep-incomplete`: True # Do not remove incomplete output files by failed jobs.
-- `cores`: 20 # Use at most N CPU cores/jobs in parallel. If N is omitted or all, the limit is set to the number of available CPU cores.
-- `set-threads`: # Overwrite thread usage of rules.
+- `printshellcmds`:  True
+- `keep-incomplete`: True
+- `cores`: 20
+- `set-threads`:
   - `salmon`: 4
   - `fastp_paired_end`: 4
   - `fastp_single_end`: 4
