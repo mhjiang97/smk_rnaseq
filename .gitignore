@@ -1,2 +1,4 @@
 .snakemake/
 config/pep/*.csv
+config/config.yaml
+config/pep/config.yaml
