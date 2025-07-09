@@ -31,8 +31,8 @@ git clone https://github.com/mhjiang97/smk_rnaseq.git
 
 cd smk_rnaseq/
 
-mv config/.config.yaml config/config.yaml
-mv config/pep/.config.yaml config/pep/config.yaml
+cp config/.config.yaml config/config.yaml
+cp config/pep/.config.yaml config/pep/config.yaml
 ```
 
 ## Configuration
