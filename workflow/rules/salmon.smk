@@ -4,11 +4,11 @@ def get_salmon_inputs(wildcards):
 
     if sample in SAMPLES_PE:
         return {
-            "fq_1": "%s/{sample}%s" % (dir_base, SUFFIX_READ_1),
-            "fq_2": "%s/{sample}%s" % (dir_base, SUFFIX_READ_2),
+            "fq_1": f"{dir_base}/{{sample}}{SUFFIX_READ_1}",
+            "fq_2": f"{dir_base}/{{sample}}{SUFFIX_READ_2}",
         }
     elif sample in SAMPLES_SE:
-        return {"fq": "%s/{sample}%s" % (dir_base, SUFFIX_READ_SE)}
+        return {"fq": f"{dir_base}/{{sample}}{SUFFIX_READ_SE}"}
     else:
         raise ValueError(f"Sample {sample} not found in SAMPLES_PE or SAMPLES_SE.")
 

@@ -1,10 +1,10 @@
 rule fastp_paired_end:
     input:
-        fq_1="%s/{sample}%s" % (DIR_DATA, SUFFIX_READ_1),
-        fq_2="%s/{sample}%s" % (DIR_DATA, SUFFIX_READ_2),
+        fq_1=f"{DIR_DATA}/{{sample}}{SUFFIX_READ_1}",
+        fq_2=f"{DIR_DATA}/{{sample}}{SUFFIX_READ_2}",
     output:
-        fq_1="fastp/{sample}/{sample}%s" % SUFFIX_READ_1,
-        fq_2="fastp/{sample}/{sample}%s" % SUFFIX_READ_2,
+        fq_1=f"fastp/{{sample}}/{{sample}}{SUFFIX_READ_1}",
+        fq_2=f"fastp/{{sample}}/{{sample}}{SUFFIX_READ_2}",
         fq_1_unpaired="fastp/{sample}/{sample}_R1.unpaired.fq.gz",
         fq_2_unpaired="fastp/{sample}/{sample}_R2.unpaired.fq.gz",
         fq_failed="fastp/{sample}/{sample}.failed.fq.gz",
@@ -19,9 +19,9 @@ rule fastp_paired_end:
 
 rule fastp_single_end:
     input:
-        fq="%s/{sample}/{sample}%s" % (DIR_DATA, SUFFIX_READ_SE),
+        fq=f"{DIR_DATA}/{{sample}}{SUFFIX_READ_SE}",
     output:
-        fq="fastp/{sample}/{sample}%s" % SUFFIX_READ_SE,
+        fq=f"fastp/{{sample}}/{{sample}}{SUFFIX_READ_SE}",
         fq_failed="fastp/{sample}/{sample}.failed.fq.gz",
         json="fastp/{sample}/{sample}.json",
         html="fastp/{sample}/{sample}.html",
