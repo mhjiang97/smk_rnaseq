@@ -3,7 +3,7 @@ dir_data: /home/username/projects/data/sra/PRJNA884735
 
 index_salmon: /home/username/doc/reference/salmon/index
 
-suffix_fastq:
+suffixes_fastq:
   paired-end:
     - "_R1.fq.gz"
     - "_R2.fq.gz"

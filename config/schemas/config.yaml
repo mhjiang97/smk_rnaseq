@@ -7,7 +7,7 @@ properties:
     type: string
   index_salmon:
     type: string
-  suffix_fastq:
+  suffixes_fastq:
     type: object
     properties:
       paired-end:
@@ -36,6 +36,6 @@ additionalProperties: false
 required:
   - dir_data
   - index_salmon
-  - suffix_fastq
+  - suffixes_fastq
   - clean_fq
   - run_multiqc

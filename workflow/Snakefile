@@ -24,7 +24,7 @@ if config["dir_run"] and config["dir_run"] is not None:
 
 validate(config, "../config/schemas/config.yaml")
 
-SUFFIXES = config["suffix_fastq"]
+SUFFIXES = config["suffixes_fastq"]
 SUFFIX_READ_1, SUFFIX_READ_2 = SUFFIXES["paired-end"]
 SUFFIX_READ_SE = SUFFIXES["single-end"]
 

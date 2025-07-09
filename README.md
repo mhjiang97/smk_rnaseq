@@ -44,7 +44,7 @@ The main configuration file (`config/config.yaml`) contains:
 - `dir_data`: Directory containing raw FASTQ files (required)
 - `index_salmon`: Path to Salmon transcriptome index (required)
 - `dir_run`: Output directory (optional)
-- `suffix_fastq`: Read file naming patterns
+- `suffixes_fastq`: Read file naming patterns
   - `paired-end`: (Default: `["_R1.fq.gz", "_R2.fq.gz"]`)
   - `single-end`: (Default: `".fq.gz"`)
 - `clean_fq`: Enable fastp read cleaning (default: `true`)
