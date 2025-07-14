@@ -1,0 +1,95 @@
+$schema: http://json-schema.org/draft-07/schema#
+type: object
+properties:
+  dir_run:
+    type: string
+  dir_data:
+    type: string
+  mapper:
+    type: string
+    enum: ["star"]
+    default: "star"
+  quantifier:
+    type: string
+    enum: ["salmon"]
+    default: "salmon"
+  annotators:
+    type: array
+    items:
+      type: string
+      enum: ["vep", "snpeff"]
+    default: ["vep", "snpeff"]
+  species:
+    type: string
+    default: "homo_sapiens"
+  genome:
+    type: string
+    default: "GRCh38"
+  index_salmon:
+    type: string
+  index_star:
+    type: string
+  gtf:
+    type: string
+  fasta:
+    type: string
+  fasta_transcriptome:
+    type: string
+  polymorphism_known:
+    type: array
+    items:
+      type: string
+  dbsnp:
+    type: string
+  check_annotations:
+    type: boolean
+    default: false
+  cache_snpeff:
+    type: string
+  cache_vep:
+    type: string
+  version_vep:
+    type: integer
+    default: 112
+  version_snpeff:
+    type: string
+    default: "105"
+  min_reads:
+    type: integer
+    default: 3
+  min_coverage:
+    type: integer
+    default: 10
+  suffixes_fastq:
+    type: object
+    properties:
+      paired-end:
+        type: array
+        items:
+          type: string
+        default: ["_R1.fq.gz", "_R2.fq.gz"]
+      single-end:
+        type: string
+        default: ".fq.gz"
+    default:
+      paired-end: ["_R1.fq.gz", "_R2.fq.gz"]
+      single-end: ".fq.gz"
+  clean_fq:
+    type: boolean
+    default: true
+  run_multiqc:
+    type: boolean
+    default: true
+additionalProperties: false
+
+required:
+  - dir_data
+  - index_salmon
+  - index_star
+  - gtf
+  - fasta
+  - fasta_transcriptome
+  - polymorphism_known
+  - dbsnp
+  - cache_snpeff
+  - cache_vep
