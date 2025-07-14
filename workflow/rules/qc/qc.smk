@@ -1,17 +1,3 @@
-def get_fastqc_inputs(wildcards):
-    sample = wildcards.sample
-
-    if sample in SAMPLES_PE:
-        return {
-            "fq_1": f"fastp/{{sample}}/{{sample}}{SUFFIX_READ_1}",
-            "fq_2": f"fastp/{{sample}}/{{sample}}{SUFFIX_READ_2}",
-        }
-    elif sample in SAMPLES_SE:
-        return {"fq": f"fastp/{{sample}}/{{sample}}{SUFFIX_READ_SE}"}
-    else:
-        raise ValueError(f"Sample {sample} not found in SAMPLES_PE or SAMPLES_SE.")
-
-
 rule fastqc:
     input:
         unpack(get_fastqc_inputs),
@@ -21,7 +7,7 @@ rule fastqc:
     log:
         "logs/{sample}/fastqc.log",
     script:
-        "../scripts/fastqc.sh"
+        "../../scripts/fastqc.sh"
 
 
 rule multiqc:

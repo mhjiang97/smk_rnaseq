@@ -14,7 +14,7 @@ rule fastp_paired_end:
     log:
         "logs/{sample}/fastp_paired_end.log",
     script:
-        "../scripts/fastp.sh"
+        "../../scripts/fastp.sh"
 
 
 rule fastp_single_end:
@@ -29,4 +29,4 @@ rule fastp_single_end:
     log:
         "logs/{sample}/fastp_single_end.log",
     script:
-        "../scripts/fastp.sh"
+        "../../scripts/fastp.sh"
