@@ -1,0 +1,8 @@
+channels:
+  - anaconda
+  - conda-forge
+  - bioconda
+  - defaults
+dependencies:
+  - ensembl-vep=112.0
+  - perl-list-moreutils=0.430
