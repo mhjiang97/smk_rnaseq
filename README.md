@@ -1,30 +1,47 @@
 # SMK_RNASEQ
 
-*A Snakemake workflow for RNA-seq analysis*
+A Snakemake workflow for RNA-seq analysis
 
 ## Recommended Project Structure
 
-```
+```text
 project/
 ├── data/                  # Raw input data
 │   └── rnaseq/
+│       ├── *.fq.gz                # Single-end reads
 │       ├── *_R1.fq.gz             # Paired-end forward reads
-│       ├── *_R2.fq.gz             # Paired-end reverse reads
-│       └── *.fq.gz                # Single-end reads
+│       └── *_R2.fq.gz             # Paired-end reverse reads
 ├── code/
 │   └── rnaseq/
 │       └── smk_rnaseq/            # This workflow
 └── analysis/              # Output directory
     └── rnaseq/
         ├── fastp/                 # Trimmed reads
-        ├── salmon/                # Transcript quantification
         ├── fastqc/
         |   └── fastp/                 # QC reports after trimming
-        └── multiqc/
-            └── fastp/                 # Aggregated QC reports
+        ├── haplotypecaller/
+        ├── multiqc/
+        |   └── fastp/                 # Aggregated QC reports
+        ├── salmon/                # Transcript quantification
+        └── star/
 ```
 
+## Dependencies
+
+- Python
+- Snakemake (tested on 9.8.0)
+- eido
+
+Other dependencies are managed by `mamba` or `conda`.
+
 ## Setup
+
+Install `Snakemake` and `eido` using `pipx`:
+
+```shell
+pipx install snakemake
+pipx inject snakemake eido
+```
 
 ```shell
 git clone https://github.com/mhjiang97/smk_rnaseq.git
@@ -50,11 +67,12 @@ The main configuration file (`config/config.yaml`) contains:
 - `clean_fq`: Enable fastp read cleaning (default: `true`)
 - `run_multiqc`: Generate MultiQC report (default: `true`)
 
-All default values are defined in the validation schema (`config/schemas/config.yaml`).
+All default values are defined in the validation schema (`workflow/schemas/config.schema.yaml`).
 
 ### Profile
 
 The default profile (`workflow/profiles/default/config.yaml`) configures execution parameters:
+
 - `printshellcmds`:  True
 - `keep-incomplete`: True
 - `cores`: 20
@@ -75,11 +93,15 @@ The sample table must include these mandatory columns:
 - `sample_name`: Unique identifier for each sample (required by PEP)
 - `library_layout`: Sequencing strategy, must be either `"paired-end"` or `"single-end"`
 
-Another validation schema (`config/schemas/pep.yaml`) ensures that the sample table meets the required format.
+Another validation schema (`workflow/schemas/pep.schema.yaml`) ensures that the sample table meets the required format.
 
 ## Execution
 
-After the configuration, you can run it using Snakemake:
+After the configuration, you create environments and run the workflow:
+
+```shell
+snakemake --conda-create-envs-only
+```
 
 ```shell
 snakemake
