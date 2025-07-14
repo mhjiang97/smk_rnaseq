@@ -1,8 +1,34 @@
+software-deployment-method:
+  - conda
 printshellcmds: True
 keep-incomplete: True
-cores: 20
+cores: 80
+resources:
+  mem_mb: 500000  # 500GB
+# default-resources:
+#   mem_mb: 50000  # 50GB
 set-threads:
   salmon: 4
+  salmon_index: 10
+  star: 10
+  star_index: 10
+  haplotypecaller: 10
+  vep: 10
   fastp_paired_end: 4
   fastp_single_end: 4
   fastqc: 4
+set-resources:
+  star:
+    mem_mb: 100000  # 100GB
+  mark_duplicates:
+    mem_mb: 50000  # 50GB
+  split_n_cigar_reads:
+    mem_mb: 100000  # 100GB
+  base_recalibrator:
+    mem_mb: 50000  # 50GB
+  apply_bqsr:
+    mem_mb: 50000  # 50GB
+  haplotypecaller:
+    mem_mb: 100000  # 50GB
+  snpeff:
+    mem_mb: 50000  # 50GB

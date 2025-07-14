@@ -1,55 +1,4 @@
-# *--------------------------------------------------------------------------* #
-# * Configuration                                                            * #
-# *--------------------------------------------------------------------------* #
-from snakemake.utils import validate
-
-
-configfile: "config/config.yaml"
-
-
-pepfile: "config/pep/config.yaml"
-
-
-pepschema: "../config/schemas/pep.yaml"
-
-
-wildcard_constraints:
-    sample=r"[\w-]+",
-
-
-if config["dir_run"] and config["dir_run"] is not None:
-
-    workdir: config["dir_run"]
-
-
-validate(config, "../config/schemas/config.yaml")
-
-SUFFIXES = config["suffixes_fastq"]
-SUFFIX_READ_1, SUFFIX_READ_2 = SUFFIXES["paired-end"]
-SUFFIX_READ_SE = SUFFIXES["single-end"]
-
-DF_SAMPLE = pep.sample_table
-SAMPLES = DF_SAMPLE["sample_name"]
-SAMPLES_PE = SAMPLES[DF_SAMPLE["library_layout"] == "paired-end"]
-SAMPLES_SE = SAMPLES[DF_SAMPLE["library_layout"] == "single-end"]
-
-DIR_DATA = config["dir_data"]
-
-TO_CLEAN_FQ = config["clean_fq"]
-
-
-# *--------------------------------------------------------------------------* #
-# * Define results to be retrieved                                           * #
-# *--------------------------------------------------------------------------* #
-targets = [f"salmon/{sample}/quant.sf" for sample in SAMPLES]
-
-if TO_CLEAN_FQ:
-    targets += [f"fastp/{sample}/{sample}.json" for sample in SAMPLES] + [
-        f"fastqc/fastp/{sample}" for sample in SAMPLES
-    ]
-
-if config["run_multiqc"]:
-    targets += ["multiqc/fastp/multiqc_report.html"]
+include: "rules/common.smk"
 
 
 rule all:
@@ -57,9 +6,29 @@ rule all:
         targets,
 
 
-# *--------------------------------------------------------------------------* #
-# * Include rules                                                            * #
-# *--------------------------------------------------------------------------* #
-include: "rules/fastp.smk"
-include: "rules/qc.smk"
-include: "rules/salmon.smk"
+include: "rules/qc/fastp.smk"
+include: "rules/qc/qc.smk"
+include: f"rules/quantifier/{QUANTIFIER}.smk"
+include: f"rules/mapper/{MAPPER}.smk"
+include: "rules/gatk/mark_duplicates.smk"
+include: "rules/gatk/split_n_cigar_reads.smk"
+include: "rules/gatk/base_recalibration.smk"
+
+
+for caller in CALLERS:
+
+    include: f"rules/caller/{caller}.smk"
+
+
+for annotator in ANNOTATORS:
+    if TO_CHECK_ANNOTATIONS:
+
+        include: f"rules/annotator/{annotator}_check.smk"
+
+    else:
+
+        include: f"rules/annotator/{annotator}.smk"
+
+
+include: "rules/mutation/filter_separate_vcf.smk"
+include: "rules/mutation/convert_annotations.smk"
