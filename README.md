@@ -28,7 +28,9 @@ project/
 
 </details>
 
-Note: This workflow assumes that all raw FASTQ files are stored in the `⁠dir_data` defined in the `⁠config/config.yaml`, without subfolders for individual samples (See [Main configuration](#main-configuration)). You can create symbolic links to the raw FASTQ files in the `⁠dir_data` directory if they are stored elsewhere.
+Note: The workflow expects all FASTQ files to be located in `dir_data` specified in `config/config.yaml`, with no sample-specific subfolders (See [Main Configuration](#main-configuration)).
+
+Hints: You can create symbolic links (`ln -s source_file target_file`) pointing to original FASTQ files.
 
 ## Prerequisites
 
