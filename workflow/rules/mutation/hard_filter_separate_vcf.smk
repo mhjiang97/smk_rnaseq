@@ -1,4 +1,4 @@
-rule filter_separate_vcf:
+rule hard_filter_separate_vcf:
     conda:
         "../../envs/bcftools.yaml"
     input:
@@ -18,7 +18,7 @@ rule filter_separate_vcf:
         min_reads=config["min_reads"],
         min_coverage=config["min_coverage"],
     log:
-        "logs/{sample}/filter_separate_vcf.{caller}.log",
+        "logs/{sample}/hard_filter_separate_vcf.{caller}.log",
     shell:
         """
         {{ if [ "{wildcards.caller}" == "haplotypecaller" ]; then
