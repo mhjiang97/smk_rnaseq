@@ -15,7 +15,7 @@ project/
 |       ├── multiqc/
 |       |   └── fastp/                 # Aggregated QC reports
 |       ├── salmon/                # Transcript quantification
-|       └── star/
+|       └── star/                  # Alignment with STAR
 ├── code/
 │   └── rnaseq/
 │       └── smk_rnaseq/            # This workflow
