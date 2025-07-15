@@ -28,6 +28,8 @@ project/
 
 </details>
 
+Note: This workflow assumes that all raw FASTQ files are stored in the `⁠dir_data` defined in the `⁠config/config.yaml`, without subfolders for individual samples (See [Main configuration](#main-configuration)). You can create symbolic links to the raw FASTQ files in the `⁠dir_data` directory if they are stored elsewhere.
+
 ## Prerequisites
 
 - [**Python**](https://www.python.org)
