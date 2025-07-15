@@ -11,20 +11,19 @@ from rich.logging import RichHandler
 from snakemake.utils import validate
 
 
+include: "utils.smk"
+
+
 configfile: "config/config.yaml"
+
+
+validate(config, "../schemas/config.schema.yaml")
 
 
 pepfile: "config/pep/config.yaml"
 
 
 pepschema: "../schemas/pep.schema.yaml"
-
-
-wildcard_constraints:
-    sample=r"[\w-]+",
-    caller=r"[\w]+",
-    mutation=r"(snvs|indels)",
-    annotator=r"(snpeff|vep)",
 
 
 path_env_vep = Path("workflow/envs/vep.yaml").resolve()
@@ -35,20 +34,15 @@ if config["dir_run"] and config["dir_run"] is not None:
     workdir: config["dir_run"]
 
 
-validate(config, "../schemas/config.schema.yaml")
-
-
-include: "utils.smk"
-
-
 # *--------------------------------------------------------------------------* #
 # * Additional validation for config parameters                              * #
 # *--------------------------------------------------------------------------* #
 perform_validations_with_rich(
     config,
     path_env_vep,
-    ["gtf", "fasta", "fasta_transcriptome", "polymorphism_known", "dbsnp"]
+    ["gtf", "fasta", "fasta_transcriptome", "polymorphism_known", "dbsnp"],
 )
+
 
 # *--------------------------------------------------------------------------* #
 # * Constants                                                                * #
@@ -73,6 +67,16 @@ DIR_DATA = config["dir_data"]
 
 TO_CLEAN_FQ = config["clean_fq"]
 TO_CHECK_ANNOTATIONS = config["check_annotations"]
+
+
+# *--------------------------------------------------------------------------* #
+# * Wildcard constraints                                                     * #
+# *--------------------------------------------------------------------------* #
+wildcard_constraints:
+    sample=r"|".join(SAMPLES),
+    caller=r"|".join(CALLERS),
+    mutation=r"|".join(MUTATIONS),
+    annotator=r"|".join(ANNOTATORS),
 
 
 # *--------------------------------------------------------------------------* #
