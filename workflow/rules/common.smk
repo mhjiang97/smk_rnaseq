@@ -18,6 +18,7 @@ wildcard_constraints:
     sample=r"[\w-]+",
     caller=r"[\w]+",
     mutation=r"(snvs|indels)",
+    annotator=r"(snpeff|vep)",
 
 
 if config["dir_run"] and config["dir_run"] is not None:

@@ -17,7 +17,7 @@ rule star_index:
             --genomeDir {output.dir} \\
             --genomeFastaFiles {input.fasta} \\
             --sjdbGTFfile {input.gtf} \\
-        1> {log} 2>&1
+            1> {log} 2>&1
         """
 
 

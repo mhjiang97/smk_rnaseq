@@ -50,7 +50,7 @@ properties:
     type: string
   version_vep:
     type: integer
-    default: 112
+    default: 114
   version_snpeff:
     type: string
     default: "105"

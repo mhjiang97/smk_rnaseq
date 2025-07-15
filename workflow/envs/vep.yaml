@@ -4,5 +4,4 @@ channels:
   - bioconda
   - defaults
 dependencies:
-  - ensembl-vep=112.0
-  - perl-list-moreutils=0.430
+  - ensembl-vep=114.2

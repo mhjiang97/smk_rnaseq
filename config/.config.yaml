@@ -28,7 +28,7 @@ dbsnp: /home/username/doc/reference/igenomes/gatk/GRCh38/Annotation/GATKBundle/d
 check_annotations: false
 cache_vep: /home/mjhk/.vep
 cache_snpeff: /home/mjhk/doc/snpeff
-version_vep: 112
+version_vep: 114
 version_snpeff: "105"
 
 min_reads: 3
