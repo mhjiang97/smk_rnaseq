@@ -35,7 +35,7 @@ project/
 - [**Snakemake**](https://snakemake.github.io) (tested on 9.8.0)
 - [**eido**](https://pep.databio.org/eido/)
 - [**SAMtools**](https://www.htslib.org)
-- [**Mamba**](https://mamba.readthedocs.io/en/latest/) or [**conda**](https://docs.conda.io/projects/conda/en/stable/)
+- [**Mamba**](https://mamba.readthedocs.io/en/latest/) (recommended) or [**conda**](https://docs.conda.io/projects/conda/en/stable/)
 
 Additional dependencies are automatically installed by **Mamba** or **conda**. Environments are defined in yaml files under `workflow/envs/`.
 
@@ -64,6 +64,7 @@ pipx inject snakemake eido
 # Clone the repository
 git clone https://github.com/mhjiang97/smk_rnaseq.git
 cd smk_rnaseq/
+
 # Initialize configuration
 cp config/.config.yaml config/config.yaml
 cp config/pep/.config.yaml config/pep/config.yaml
@@ -107,9 +108,9 @@ Sample configuration (`config/pep/config.yaml`) specifies the path to your sampl
 
 The sample table must include these mandatory columns:
 
-| `sample_name`                                       | `library_layout`                                                     |
-| --------------------------------------------------- | -------------------------------------------------------------------- |
-| Unique identifier for each sample (required by PEP) | Sequencing strategy, must be either `"paired-end"` or `"single-end"` |
+| **sample_name**                   | **library_layout**                                     |
+| --------------------------------- | ------------------------------------------------------ |
+| Unique identifier for each sample | Sequencing strategy (`"paired-end"` or `"single-end"`) |
 
 Another validation schema (`workflow/schemas/pep.schema.yaml`) ensures that the sample table meets the required format.
 
