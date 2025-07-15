@@ -12,26 +12,17 @@ A Snakemake workflow for RNA-seq analysis
 
 ```text
 project/
-├── analysis/              # Output directory
+├── analysis/
 |   └── rnaseq/
-|       ├── fastp/                 # Trimmed reads
-|       ├── fastqc/                # QC reports before trimming
-|       |   └── fastp/                 # QC reports after trimming
-|       ├── haplotypecaller/       # Variant calling with HaplotypeCaller
-|       ├── multiqc/
-|       |   ├── multiqc_report.html    # Aggregated QC reports before trimming
-|       |   └── fastp/
-|       |       └── multiqc_report.html    # Aggregated QC reports after trimming
-|       ├── salmon/                # Transcript quantification
-|       └── star/                  # Alignment with STAR
+|       └── ...                # Outputs of this workflow
 ├── code/
 │   └── rnaseq/
-│       └── smk_rnaseq/            # This workflow
-├── data/                  # Raw input data
-|   └── rnaseq/
-|       ├── *.fq.gz                # Single-end reads
-|       ├── *_R1.fq.gz             # Paired-end forward reads
-|       └── *_R2.fq.gz             # Paired-end reverse reads
+│       └── smk_rnaseq/        # This workflow
+├── data/
+│   └── rnaseq/
+│       ├── *.fq.gz            # Single-end reads
+│       ├── *_R1.fq.gz         # Paired-end forward reads
+│       └── *_R2.fq.gz         # Paired-end reverse reads
 └── doc/
 ```
 
@@ -230,6 +221,39 @@ snakemake --conda-create-envs-only
 # Run the workflow
 snakemake
 ```
+
+## Output
+
+By default, all results are written to the directory you specify as `dir_run` (or to `workflow/` if `dir_run` is unset).
+
+The main results are:
+
+- **fastp/**
+  - Trimmed reads: `{sample}/{sample}[_R1/_R2].fq.gz`
+
+- **fastqc/** – QC reports _before_ trimming
+  - Raw reads: `{sample}/{sample}[_1/_2]_fastqc.html`
+  - Trimmed reads: `fastp/{sample}/{sample}[_1/_2]_fastqc.html`
+
+- **multiqc/**
+  - Pre-trimming summary: `multiqc_report.html`
+  - Post-trimming summary: `fastp/multiqc_report.html`
+
+- **salmon/**
+  - Transcript-level abundance estimates: `{sample}/quant.sf`
+
+- **star/**
+  - Initial sorted alignment: `{sample}/{sample}.sorted.bam`
+  - Final processed BAM: `{sample}/{sample}.sorted.md.splitn.recal.bam`
+
+- **haplotypecaller/**
+  - Raw calls: `{sample}/{sample}.vcf`
+  - Hard-filtered variants:
+    - `{sample}/{sample}.snvs.vcf` – SNVs
+    - `{sample}/{sample}.indels.vcf` – Indels
+  - Annotated variants (for each variant type):
+    - SnpEff: `{sample}/{sample}.[snvs/indels].snpeff.[vcf/tsv]`
+    - VEP: `{sample}/{sample}.[snvs/indels].vep.[vcf/maf]`
 
 ## License
 
