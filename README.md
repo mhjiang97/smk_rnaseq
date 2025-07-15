@@ -32,6 +32,8 @@ Note: The workflow expects all FASTQ files to be located in `dir_data` specified
 
 Hints: You can create symbolic links (`ln -s source_file target_file`) pointing to original FASTQ files.
 
+*This adapted structure enables an organized layout for each project.*
+
 ## Prerequisites
 
 - [**Python**](https://www.python.org)
