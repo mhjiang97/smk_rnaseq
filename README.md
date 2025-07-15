@@ -19,7 +19,7 @@ project/
         ├── fastp/                 # Trimmed reads
         ├── fastqc/
         |   └── fastp/                 # QC reports after trimming
-        ├── haplotypecaller/
+        ├── haplotypecaller/       # Variant calling with HaplotypeCaller
         ├── multiqc/
         |   └── fastp/                 # Aggregated QC reports
         ├── salmon/                # Transcript quantification
@@ -43,11 +43,11 @@ pipx install snakemake
 pipx inject snakemake eido
 ```
 
+Clone the repository and copy the example configuration files:
+
 ```shell
 git clone https://github.com/mhjiang97/smk_rnaseq.git
-
 cd smk_rnaseq/
-
 cp config/.config.yaml config/config.yaml
 cp config/pep/.config.yaml config/pep/config.yaml
 ```
@@ -97,11 +97,13 @@ Another validation schema (`workflow/schemas/pep.schema.yaml`) ensures that the 
 
 ## Execution
 
-After the configuration, you create environments and run the workflow:
+After the configuration, you can create environments first:
 
 ```shell
 snakemake --conda-create-envs-only
 ```
+
+Then run the workflow:
 
 ```shell
 snakemake
