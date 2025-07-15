@@ -29,22 +29,34 @@ project/
 
 ## Dependencies
 
-- [`Python`](https://www.python.org)
-- [`Snakemake`](https://snakemake.github.io) (tested on 9.8.0)
-- [`eido`](https://pep.databio.org/eido/)
+- [**Python**](https://www.python.org)
+- [**Snakemake**](https://snakemake.github.io) (tested on 9.8.0)
+- [**eido**](https://pep.databio.org/eido/)
+- [**SAMtools**](https://www.htslib.org)
 
-Other dependencies are managed by [`mamba`](https://mamba.readthedocs.io/en/latest/) or [`conda`](https://docs.conda.io/projects/conda/en/stable/).
+Other dependencies are managed by [**Mamba**](https://mamba.readthedocs.io/en/latest/) or [**conda**](https://docs.conda.io/projects/conda/en/stable/).
+
+- [**BCFtools**](http://samtools.github.io/bcftools/)
+- [**GATK**](https://gatk.broadinstitute.org/hc/en-us)
+- [**Salmon**](https://combine-lab.github.io/salmon/)
+- [**SnpEff**](https://pcingola.github.io/)
+- [**SnpSift**](https://pcingola.github.io/)
+- [**STAR**](https://github.com/alexdobin/STAR)
+- [**vcf2maf**](https://github.com/mskcc/vcf2maf)
+- [**VEP**](https://www.ensembl.org/info/docs/tools/vep/index.html)
 
 ## Setup
 
-Install `Snakemake` and `eido` using [`pipx`](https://pipx.pypa.io/stable/):
+1. Install **Mamba** and **SAMtools** manually. Make sure `mamba` and `samtools` are in your `PATH`. Since conda-packaged **SAMtools** occasionally encounters issues, this workflow presumes that `samtools` is executable within your system's `PATH`.
+
+2. Install **Snakemake** and **eido**. You can use [**pipx**](https://pipx.pypa.io/stable/):
 
 ```shell
 pipx install snakemake
 pipx inject snakemake eido
 ```
 
-Clone the repository and copy the example configuration files:
+3. Clone the repository and copy the example configuration files:
 
 ```shell
 git clone https://github.com/mhjiang97/smk_rnaseq.git
@@ -85,7 +97,7 @@ The default profile (`workflow/profiles/default/config.yaml`) configures executi
 
 ### Sample Metadata
 
-This workflow uses [Portable Encapsulated Projects (PEP)](https://pep.databio.org/) to manage sample metadata.
+This workflow uses [**Portable Encapsulated Projects (PEP)**](https://pep.databio.org/) to manage sample metadata.
 
 Sample configuration (`config/pep/config.yaml`) specifies the path to your sample table and other attributes.
 
