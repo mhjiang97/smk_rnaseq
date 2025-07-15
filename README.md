@@ -76,14 +76,53 @@ cp config/pep/.config.yaml config/pep/config.yaml
 
 Edit `config/config.yaml`:
 
-- `dir_data`: Directory containing raw FASTQ files (required)
-- `index_salmon`: Path to Salmon transcriptome index (required)
-- `dir_run`: Output directory (optional)
-- `suffixes_fastq`: Read file naming patterns
-  - `paired-end`: (Default: `["_R1.fq.gz", "_R2.fq.gz"]`)
-  - `single-end`: (Default: `".fq.gz"`)
-- `clean_fq`: Enable fastp read cleaning (default: `true`)
-- `run_multiqc`: Generate MultiQC report (default: `true`)
+```yaml
+dir_run: /home/user/projects/project_a/analysis/rnaseq
+dir_data: /home/user/projects/project_a/data/rnaseq
+
+mapper: star
+quantifier: salmon
+annotators:
+  - vep
+  - snpeff
+
+species: homo_sapiens
+genome: GRCh38
+
+index_salmon: /home/user/doc/reference/salmon
+index_star: /home/user/doc/reference/star_2.7.11b
+
+gtf: /home/user/doc/reference/gtf/gencode.v44.annotation.gtf
+fasta: /home/user/doc/reference/fasta/GRCh38.primary_assembly.genome.fa
+fasta_transcriptome: /home/user/doc/reference/fasta/gencode.v44.transcripts.fa
+
+polymorphism_known:
+  - /home/user/doc/reference/igenomes/gatk/GRCh38/Annotation/GATKBundle/dbsnp_146.hg38.vcf.gz
+  - /home/user/doc/reference/igenomes/gatk/GRCh38/Annotation/GATKBundle/beta/Homo_sapiens_assembly38.known_indels.vcf.gz
+  - /home/user/doc/reference/igenomes/gatk/GRCh38/Annotation/GATKBundle/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz
+  - /home/user/doc/reference/igenomes/gatk/GRCh38/Annotation/GATKBundle/1000G_omni2.5.hg38.vcf.gz
+
+dbsnp: /home/user/doc/reference/igenomes/gatk/GRCh38/Annotation/GATKBundle/dbsnp_146.hg38.vcf.gz
+
+check_annotations: false
+cache_vep: /home/user/.vep
+cache_snpeff: /home/user/doc/snpeff
+version_vep: 114
+version_snpeff: "105"
+
+min_reads: 3
+min_coverage: 10
+
+suffixes_fastq:
+  paired-end:
+    - "_R1.fq.gz"
+    - "_R2.fq.gz"
+  single-end: ".fq.gz"
+
+clean_fq: true
+
+run_multiqc: true
+```
 
 All default values are defined in the validation schema (`workflow/schemas/config.schema.yaml`).
 
@@ -91,14 +130,40 @@ All default values are defined in the validation schema (`workflow/schemas/confi
 
 Edit `workflow/profiles/default/config.yaml` that configures execution parameters including threads and resource allocation:
 
-- `printshellcmds`:  True
-- `keep-incomplete`: True
-- `cores`: 20
-- `set-threads`:
-  - `salmon`: 4
-  - `fastp_paired_end`: 4
-  - `fastp_single_end`: 4
-  - `fastqc`: 4
+```yaml
+software-deployment-method:
+  - conda
+printshellcmds: True
+keep-incomplete: True
+cores: 80
+resources:
+  mem_mb: 500000  # 500GB
+set-threads:
+  salmon: 4
+  salmon_index: 10
+  star: 10
+  star_index: 10
+  haplotypecaller: 10
+  vep: 10
+  fastp_paired_end: 4
+  fastp_single_end: 4
+  fastqc: 4
+set-resources:
+  star:
+    mem_mb: 100000  # 100GB
+  mark_duplicates:
+    mem_mb: 50000  # 50GB
+  split_n_cigar_reads:
+    mem_mb: 100000  # 100GB
+  base_recalibrator:
+    mem_mb: 50000  # 50GB
+  apply_bqsr:
+    mem_mb: 50000  # 50GB
+  haplotypecaller:
+    mem_mb: 100000  # 50GB
+  snpeff:
+    mem_mb: 50000  # 50GB
+```
 
 ### Sample Metadata
 
