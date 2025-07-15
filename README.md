@@ -6,24 +6,25 @@ A Snakemake workflow for RNA-seq analysis
 
 ```text
 project/
-├── data/                  # Raw input data
-│   └── rnaseq/
-│       ├── *.fq.gz                # Single-end reads
-│       ├── *_R1.fq.gz             # Paired-end forward reads
-│       └── *_R2.fq.gz             # Paired-end reverse reads
+├── analysis/              # Output directory
+|   └── rnaseq/
+|       ├── fastp/                 # Trimmed reads
+|       ├── fastqc/
+|       |   └── fastp/                 # QC reports after trimming
+|       ├── haplotypecaller/       # Variant calling with HaplotypeCaller
+|       ├── multiqc/
+|       |   └── fastp/                 # Aggregated QC reports
+|       ├── salmon/                # Transcript quantification
+|       └── star/
 ├── code/
 │   └── rnaseq/
 │       └── smk_rnaseq/            # This workflow
-└── analysis/              # Output directory
-    └── rnaseq/
-        ├── fastp/                 # Trimmed reads
-        ├── fastqc/
-        |   └── fastp/                 # QC reports after trimming
-        ├── haplotypecaller/       # Variant calling with HaplotypeCaller
-        ├── multiqc/
-        |   └── fastp/                 # Aggregated QC reports
-        ├── salmon/                # Transcript quantification
-        └── star/
+├── data/                  # Raw input data
+|   └── rnaseq/
+|       ├── *.fq.gz                # Single-end reads
+|       ├── *_R1.fq.gz             # Paired-end forward reads
+|       └── *_R2.fq.gz             # Paired-end reverse reads
+└── doc/
 ```
 
 ## Dependencies
