@@ -58,6 +58,23 @@ Additional dependencies are automatically installed by **Mamba** or **conda**. E
 # occasionally encounters issues, this workflow presumes that samtools is      #
 # executable within your system's PATH.                                        #
 # ---------------------------------------------------------------------------- #
+if ! command -v mamba &> /dev/null; then
+    "${SHELL}" <(curl -L micro.mamba.pm/install.sh)
+    source ~/.bashrc
+fi
+
+if ! command -v samtools &> /dev/null; then
+    [ -d ${HOME}/.local/opt ] || mkdir -p ${HOME}/.local/opt
+    wget 'https://github.com/samtools/samtools/releases/download/1.22.1/samtools-1.22.1.tar.bz2'
+    tar -xvf samtools-1.22.1.tar.bz2
+    cd samtools-1.22.1
+    ./configure --prefix=${HOME}/.local/opt/samtools
+    make
+    make install
+    echo "export PATH=\${HOME}/.local/opt/samtools/bin:\${PATH}" >> ~/.bashrc
+    source ~/.bashrc
+    rm -rf samtools-1.22.1 samtools-1.22.1.tar.bz2
+fi
 
 # Install Snakemake and eido using pipx (https://pipx.pypa.io/stable/)
 pipx install snakemake
