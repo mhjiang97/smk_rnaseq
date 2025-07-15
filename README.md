@@ -104,7 +104,7 @@ Edit `workflow/profiles/default/config.yaml` that configures execution parameter
 
 This workflow uses [**Portable Encapsulated Projects (PEP)**](https://pep.databio.org/) for sample management.
 
-Sample configuration (`config/pep/config.yaml`) specifies the path to your sample table and other attributes.
+Edit `config/pep/config.yaml` that specifies the path to your sample table and other attributes.
 
 The sample table must include these mandatory columns:
 
