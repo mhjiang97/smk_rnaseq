@@ -66,6 +66,7 @@ SAMPLES_SE = SAMPLES[DF_SAMPLE["library_layout"] == "single-end"]
 DIR_DATA = config["dir_data"]
 
 TO_CLEAN_FQ = config["clean_fq"]
+TO_RUN_FASTQC = config["run_fastqc"]
 TO_RUN_MULTIQC = config["run_multiqc"]
 TO_CHECK_ANNOTATIONS = config["check_annotations"]
 
@@ -97,12 +98,18 @@ targets += [
 ]
 
 if TO_CLEAN_FQ:
-    targets += [f"fastp/{sample}/{sample}.json" for sample in SAMPLES] + [
-        f"fastqc/fastp/{sample}" for sample in SAMPLES
-    ]
+    targets += [f"fastp/{sample}/{sample}.json" for sample in SAMPLES]
+    if TO_RUN_FASTQC:
+        targets += [f"fastqc/fastp/{sample}" for sample in SAMPLES]
 
     if TO_RUN_MULTIQC:
         targets += ["multiqc/fastp/multiqc_report.html"]
+else:
+    if TO_RUN_FASTQC:
+        targets += [f"fastqc/{sample}" for sample in SAMPLES]
+
+    if TO_RUN_MULTIQC:
+        targets += ["multiqc/multiqc_report.html"]
 
 
 # *--------------------------------------------------------------------------* #

@@ -1,4 +1,4 @@
-<!-- markdownlint-configure-file {"no-inline-html": {"allowed_elements": ["code", "details", "summary"]}} -->
+<!-- markdownlint-configure-file {"no-inline-html": {"allowed_elements": ["code", "details", "h2", "summary"]}} -->
 
 # SMK_RNASEQ
 
@@ -6,18 +6,22 @@
 
 A Snakemake workflow for RNA-seq analysis
 
-## Recommended Project Structure
+<details>
+
+<summary><h2>Recommended Project Structure</h2></summary>
 
 ```text
 project/
 ├── analysis/              # Output directory
 |   └── rnaseq/
 |       ├── fastp/                 # Trimmed reads
-|       ├── fastqc/
+|       ├── fastqc/                # QC reports before trimming
 |       |   └── fastp/                 # QC reports after trimming
 |       ├── haplotypecaller/       # Variant calling with HaplotypeCaller
 |       ├── multiqc/
-|       |   └── fastp/                 # Aggregated QC reports
+|       |   ├── multiqc_report.html    # Aggregated QC reports before trimming
+|       |   └── fastp/
+|       |       └── multiqc_report.html    # Aggregated QC reports after trimming
 |       ├── salmon/                # Transcript quantification
 |       └── star/                  # Alignment with STAR
 ├── code/
@@ -30,6 +34,8 @@ project/
 |       └── *_R2.fq.gz             # Paired-end reverse reads
 └── doc/
 ```
+
+</details>
 
 ## Prerequisites
 
@@ -95,7 +101,7 @@ cp config/pep/.config.yaml config/pep/config.yaml
 
 <details>
 
-<summary> Edit <code>config/config.yaml</code></summary>
+<summary>Edit <code>config/config.yaml</code></summary>
 
 ```yaml
 dir_run: /home/user/projects/project_a/analysis/rnaseq           # Output directory (Optional)
@@ -141,7 +147,7 @@ suffixes_fastq:                                                  # Suffixes for 
   single-end: ".fq.gz"
 
 clean_fq: true                                                   # Whether to run Fastp to trim raw FASTQ files (Default: true)
-
+run_fastqc: true                                                 # Whether to run FastQC to generate quality control reports (Default: true)
 run_multiqc: true                                                # Whether to run MultiQC to aggregate QC reports (Default: true)
 ```
 
@@ -153,7 +159,7 @@ All default values are defined in the validation schema (`workflow/schemas/confi
 
 <details>
 
-<summary> Edit <code>workflow/profiles/default/config.yaml</code></summary>
+<summary>Edit <code>workflow/profiles/default/config.yaml</code></summary>
 
 ```yaml
 software-deployment-method:
@@ -198,7 +204,7 @@ This workflow uses [**Portable Encapsulated Projects (PEP)**](https://pep.databi
 
 <details>
 
-<summary> Edit <code>config/pep/config.yaml</code></summary>
+<summary>Edit <code>config/pep/config.yaml</code></summary>
 
 ```yaml
 pep_version: 2.1.0
