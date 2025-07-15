@@ -1,7 +1,13 @@
 # *--------------------------------------------------------------------------* #
 # * Configuration                                                            * #
 # *--------------------------------------------------------------------------* #
+import logging
+from math import floor
 from pathlib import Path
+
+import yaml
+from rich.console import Console
+from rich.logging import RichHandler
 from snakemake.utils import validate
 
 
@@ -21,6 +27,9 @@ wildcard_constraints:
     annotator=r"(snpeff|vep)",
 
 
+path_env_vep = Path("workflow/envs/vep.yaml").resolve()
+
+
 if config["dir_run"] and config["dir_run"] is not None:
 
     workdir: config["dir_run"]
@@ -28,6 +37,81 @@ if config["dir_run"] and config["dir_run"] is not None:
 
 validate(config, "../schemas/config.schema.yaml")
 
+
+# *--------------------------------------------------------------------------* #
+# * Additional validation for config parameters                              * #
+# *--------------------------------------------------------------------------* #
+def validate_vep_version(config, env_file):
+    with open(env_file, "r") as f:
+        config_vep = yaml.safe_load(f)
+
+    dependencies = config_vep.get("dependencies", [])
+    dependency_vep = next(
+        (
+            dep
+            for dep in dependencies
+            if isinstance(dep, str) and dep.startswith("ensembl-vep")
+        ),
+        None,
+    )
+
+    version_vep = dependency_vep.split("=")[1]
+    version_env_major = floor(float(version_vep))
+    version_config = config["version_vep"]
+
+    if version_env_major != version_config:
+        logger.warning(
+            f"[bold yellow]⚠ VEP version mismatch detected[/]: "
+            f"config = [cyan]{version_config}[/], env = [magenta]{version_env_major}[/]."
+        )
+        logger.info(
+            f"[bold green]Recommendation:[/] Align the VEP version in 'config/config.yaml' with 'workflow/envs/vep.yaml'."
+        )
+
+
+def validate_files(config, parameters):
+    for param in parameters:
+        paths = config[param]
+        paths = [paths] if isinstance(paths, str) else paths
+
+        missing = [p for p in paths if not Path(p).exists()]
+        if missing:
+            files = ", ".join(f"[dim]'{f}'[/]" for f in missing)
+            logger.error(
+                f"[bold red]✖ Missing file(s)[/]: {files} not found for parameter '{param}'."
+            )
+            logger.info(
+                f"[bold cyan]Hint:[/] Please verify the paths in 'config/config.yaml'."
+            )
+            raise ValueError()
+
+
+logger_root = logging.getLogger()
+level_previous = logger_root.level
+handlers_previous = logger_root.handlers.copy()
+
+console = Console()
+logging.basicConfig(
+    level=logging.INFO,
+    format="%(message)s",
+    datefmt="[%Y-%m-%d %H:%M:%S]",
+    handlers=[
+        RichHandler(
+            console=console,
+            rich_tracebacks=True,
+            markup=True,
+        )
+    ],
+)
+logger = logging.getLogger()
+
+validate_vep_version(config, path_env_vep)
+validate_files(
+    config, ["gtf", "fasta", "fasta_transcriptome", "polymorphism_known", "dbsnp"]
+)
+
+logger_root.setLevel(level_previous)
+logger_root.handlers = handlers_previous
 
 # *--------------------------------------------------------------------------* #
 # * Constants                                                                * #
