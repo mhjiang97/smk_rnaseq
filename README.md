@@ -1,3 +1,5 @@
+<!-- markdownlint-configure-file {"no-inline-html": {"allowed_elements": ["details"]}} -->
+
 # SMK_RNASEQ
 
 ![License GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)
@@ -76,59 +78,65 @@ cp config/pep/.config.yaml config/pep/config.yaml
 
 Edit `config/config.yaml`:
 
-```yaml
-dir_run: /home/user/projects/project_a/analysis/rnaseq
-dir_data: /home/user/projects/project_a/data/rnaseq
+<details>
 
-mapper: star
-quantifier: salmon
-annotators:
+```yaml
+dir_run: /home/user/projects/project_a/analysis/rnaseq           # Output directory (Optional)
+dir_data: /home/user/projects/project_a/data/rnaseq              # Directory for raw FASTQ files (Required)
+
+mapper: star                                                     # Alignment tool (Default: "star")
+quantifier: salmon                                               # Quantification tool (Default: "salmon")
+annotators:                                                      # Variant annotation tools (Defaults: ["vep", "snpeff"])
   - vep
   - snpeff
 
-species: homo_sapiens
-genome: GRCh38
+species: homo_sapiens                                            # Species (Default: "homo_sapiens")
+genome: GRCh38                                                   # Genome assembly (Default: "GRCh38")
 
-index_salmon: /home/user/doc/reference/salmon
-index_star: /home/user/doc/reference/star_2.7.11b
+index_salmon: /reference/salmon                                  # Salmon index (Required. If doesn't exist, it will be generated)
+index_star: /reference/star_2.7.11b                              # STAR index (Required. If doesn't exist, it will be generated)
 
-gtf: /home/user/doc/reference/gtf/gencode.v44.annotation.gtf
-fasta: /home/user/doc/reference/fasta/GRCh38.primary_assembly.genome.fa
-fasta_transcriptome: /home/user/doc/reference/fasta/gencode.v44.transcripts.fa
+gtf: /reference/gtf/gencode.v44.annotation.gtf                   # GTF file (Required)
+fasta: /reference/fasta/GRCh38.primary_assembly.genome.fa        # Genome FASTA file (Required)
+fasta_transcriptome: /reference/fasta/gencode.v44.transcripts.fa # Transcriptome FASTA file (Required)
 
-polymorphism_known:
-  - /home/user/doc/reference/igenomes/gatk/GRCh38/Annotation/GATKBundle/dbsnp_146.hg38.vcf.gz
-  - /home/user/doc/reference/igenomes/gatk/GRCh38/Annotation/GATKBundle/beta/Homo_sapiens_assembly38.known_indels.vcf.gz
-  - /home/user/doc/reference/igenomes/gatk/GRCh38/Annotation/GATKBundle/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz
-  - /home/user/doc/reference/igenomes/gatk/GRCh38/Annotation/GATKBundle/1000G_omni2.5.hg38.vcf.gz
+polymorphism_known:                                              # Known polymorphism VCF files used by GATK BaseRecalibrator (Required)
+  - /reference/GATKBundle/dbsnp_146.hg38.vcf.gz
+  - /reference/GATKBundle/beta/Homo_sapiens_assembly38.known_indels.vcf.gz
+  - /reference/GATKBundle/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz
+  - /reference/GATKBundle/1000G_omni2.5.hg38.vcf.gz
 
-dbsnp: /home/user/doc/reference/igenomes/gatk/GRCh38/Annotation/GATKBundle/dbsnp_146.hg38.vcf.gz
+dbsnp: /reference/GATKBundle/dbsnp_146.hg38.vcf.gz               # dbSNP VCF file used by HaplotypeCaller (Required)
 
-check_annotations: false
-cache_vep: /home/user/.vep
-cache_snpeff: /home/user/doc/snpeff
-version_vep: 114
-version_snpeff: "105"
+check_annotations: false                                         # Whether to check VCF files annotated by VEP and SnpEff by counting lines (Default: false)
+cache_vep: /home/user/.vep                                       # Cache directory for VEP
+cache_snpeff: /doc/snpeff                                        # Cache directory for SnpEff
+version_vep: 114                                                 # VEP cache version (Default: 114)
+version_snpeff: "105"                                            # SnpEff cache version (Default: "105")
 
-min_reads: 3
-min_coverage: 10
+min_reads: 3                                                     # Minimum number of supporting reads (Default: 3)
+min_coverage: 10                                                 # Minimum coverage required for a mutation site to be considered (Default: 10)
 
-suffixes_fastq:
+suffixes_fastq:                                                  # Suffixes for FASTQ files (Defaults: {paired-end: ["_R1.fq.gz", "_R2.fq.gz"], single-end: ".fq.gz"})
   paired-end:
     - "_R1.fq.gz"
     - "_R2.fq.gz"
   single-end: ".fq.gz"
 
-clean_fq: true
+clean_fq: true                                                   # Whether to run Fastp to trim raw FASTQ files (Default: true)
 
-run_multiqc: true
+run_multiqc: true                                                # Whether to run MultiQC to aggregate QC reports (Default: true)
 ```
+
+</details>
 
 All default values are defined in the validation schema (`workflow/schemas/config.schema.yaml`).
 
 ### Execution Profile
 
-Edit `workflow/profiles/default/config.yaml` that configures execution parameters including threads and resource allocation:
+Edit `workflow/profiles/default/config.yaml`:
+
+<details>
 
 ```yaml
 software-deployment-method:
@@ -137,7 +145,7 @@ printshellcmds: True
 keep-incomplete: True
 cores: 80
 resources:
-  mem_mb: 500000  # 500GB
+  mem_mb: 500000      # 500GB
 set-threads:
   salmon: 4
   salmon_index: 10
@@ -150,26 +158,37 @@ set-threads:
   fastqc: 4
 set-resources:
   star:
-    mem_mb: 100000  # 100GB
+    mem_mb: 100000    # 100GB
   mark_duplicates:
-    mem_mb: 50000  # 50GB
+    mem_mb: 50000     # 50GB
   split_n_cigar_reads:
-    mem_mb: 100000  # 100GB
+    mem_mb: 100000    # 100GB
   base_recalibrator:
-    mem_mb: 50000  # 50GB
+    mem_mb: 50000     # 50GB
   apply_bqsr:
-    mem_mb: 50000  # 50GB
+    mem_mb: 50000     # 50GB
   haplotypecaller:
-    mem_mb: 100000  # 50GB
+    mem_mb: 100000    # 100GB
   snpeff:
-    mem_mb: 50000  # 50GB
+    mem_mb: 50000     # 50GB
 ```
+
+</details>
 
 ### Sample Metadata
 
 This workflow uses [**Portable Encapsulated Projects (PEP)**](https://pep.databio.org/) for sample management.
 
-Edit `config/pep/config.yaml` that specifies the path to your sample table and other attributes.
+Edit `config/pep/config.yaml`:
+
+<details>
+
+```yaml
+pep_version: 2.1.0
+sample_table: samples.csv    # Path to the sample table (Required)
+```
+
+</details>
 
 The sample table must include these mandatory columns:
 
