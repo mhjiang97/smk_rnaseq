@@ -46,7 +46,7 @@ def validate_files(config, parameters):
             raise ValueError()
 
 
-def perform_validations_with_rich(config, env_vep_path, file_params):
+def perform_validations_with_rich(config, vep_env_path, file_params):
     root = logging.getLogger()
     old_level = root.level
     old_handlers = root.handlers.copy()
@@ -60,7 +60,7 @@ def perform_validations_with_rich(config, env_vep_path, file_params):
     )
     logger = logging.getLogger()
 
-    validate_vep_version(config, env_vep_path)
+    validate_vep_version(config, vep_env_path)
     validate_files(config, file_params)
 
     root.setLevel(old_level)
