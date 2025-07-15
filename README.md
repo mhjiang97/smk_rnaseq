@@ -29,15 +29,15 @@ project/
 
 ## Dependencies
 
-- Python
-- Snakemake (tested on 9.8.0)
-- eido
+- [`Python`](https://www.python.org)
+- [`Snakemake`](https://snakemake.github.io) (tested on 9.8.0)
+- [`eido`](https://pep.databio.org/eido/)
 
-Other dependencies are managed by `mamba` or `conda`.
+Other dependencies are managed by [`mamba`](https://mamba.readthedocs.io/en/latest/) or [`conda`](https://docs.conda.io/projects/conda/en/stable/).
 
 ## Setup
 
-Install `Snakemake` and `eido` using `pipx`:
+Install `Snakemake` and `eido` using [`pipx`](https://pipx.pypa.io/stable/):
 
 ```shell
 pipx install snakemake
