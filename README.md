@@ -1,4 +1,4 @@
-<!-- markdownlint-configure-file {"no-inline-html": {"allowed_elements": ["details"]}} -->
+<!-- markdownlint-configure-file {"no-inline-html": {"allowed_elements": ["code", "details", "summary"]}} -->
 
 # SMK_RNASEQ
 
@@ -76,9 +76,9 @@ cp config/pep/.config.yaml config/pep/config.yaml
 
 ### Main Configuration
 
-Edit `config/config.yaml`:
-
 <details>
+
+<summary> Edit <code>config/config.yaml</code></summary>
 
 ```yaml
 dir_run: /home/user/projects/project_a/analysis/rnaseq           # Output directory (Optional)
@@ -134,9 +134,9 @@ All default values are defined in the validation schema (`workflow/schemas/confi
 
 ### Execution Profile
 
-Edit `workflow/profiles/default/config.yaml`:
-
 <details>
+
+<summary> Edit <code>workflow/profiles/default/config.yaml</code></summary>
 
 ```yaml
 software-deployment-method:
@@ -179,9 +179,9 @@ set-resources:
 
 This workflow uses [**Portable Encapsulated Projects (PEP)**](https://pep.databio.org/) for sample management.
 
-Edit `config/pep/config.yaml`:
-
 <details>
+
+<summary> Edit <code>config/pep/config.yaml</code></summary>
 
 ```yaml
 pep_version: 2.1.0
