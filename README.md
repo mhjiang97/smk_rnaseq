@@ -226,7 +226,9 @@ snakemake
 
 By default, all results are written to the directory you specify as `dir_run` (or to `workflow/` if `dir_run` is unset).
 
-The main results are:
+<details>
+
+<summary>Main results</summary>
 
 - **fastp/**
   - Trimmed reads: `{sample}/{sample}[_R1/_R2].fq.gz`
@@ -249,11 +251,13 @@ The main results are:
 - **haplotypecaller/**
   - Raw calls: `{sample}/{sample}.vcf`
   - Hard-filtered variants:
-    - `{sample}/{sample}.snvs.vcf` – SNVs
-    - `{sample}/{sample}.indels.vcf` – Indels
-  - Annotated variants (for each variant type):
+    - SNVs: `{sample}/{sample}.snvs.vcf`
+    - Indels: `{sample}/{sample}.indels.vcf`
+  - Annotated variants:
     - SnpEff: `{sample}/{sample}.[snvs/indels].snpeff.[vcf/tsv]`
     - VEP: `{sample}/{sample}.[snvs/indels].vep.[vcf/maf]`
+
+</details>
 
 ## License
 
