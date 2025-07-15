@@ -30,5 +30,5 @@ for annotator in ANNOTATORS:
         include: f"rules/annotator/{annotator}.smk"
 
 
-include: "rules/mutation/filter_separate_vcf.smk"
+include: "rules/mutation/hard_filter_separate_vcf.smk"
 include: "rules/mutation/convert_annotations.smk"
