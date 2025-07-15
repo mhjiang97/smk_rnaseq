@@ -1,6 +1,6 @@
 rule fastqc:
     input:
-        unpack(get_fastqc_inputs),
+        unpack(get_fastq_files),
     output:
         dir=directory("fastqc/fastp/{sample}"),
     threads: 1
