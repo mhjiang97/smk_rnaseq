@@ -1,5 +1,7 @@
 # SMK_RNASEQ
 
+![License GPLv3](https://img.shields.io/badge/License-GPLv3-blue.svg)
+
 A Snakemake workflow for RNA-seq analysis
 
 ## Recommended Project Structure
@@ -27,14 +29,15 @@ project/
 └── doc/
 ```
 
-## Dependencies
+## Prerequisites
 
 - [**Python**](https://www.python.org)
 - [**Snakemake**](https://snakemake.github.io) (tested on 9.8.0)
 - [**eido**](https://pep.databio.org/eido/)
 - [**SAMtools**](https://www.htslib.org)
+- [**Mamba**](https://mamba.readthedocs.io/en/latest/) or [**conda**](https://docs.conda.io/projects/conda/en/stable/)
 
-Other dependencies are managed by [**Mamba**](https://mamba.readthedocs.io/en/latest/) or [**conda**](https://docs.conda.io/projects/conda/en/stable/).
+Additional dependencies are automatically installed by **Mamba** or **conda**. Environments are defined in yaml files under `workflow/envs/`.
 
 - [**BCFtools**](http://samtools.github.io/bcftools/)
 - [**GATK**](https://gatk.broadinstitute.org/hc/en-us)
@@ -45,31 +48,32 @@ Other dependencies are managed by [**Mamba**](https://mamba.readthedocs.io/en/la
 - [**vcf2maf**](https://github.com/mskcc/vcf2maf)
 - [**VEP**](https://www.ensembl.org/info/docs/tools/vep/index.html)
 
-## Setup
-
-1. Install **Mamba** and **SAMtools** manually. Make sure `mamba` and `samtools` are in your `PATH`. Since conda-packaged **SAMtools** occasionally encounters issues, this workflow presumes that `samtools` is executable within your system's `PATH`.
-
-2. Install **Snakemake** and **eido**. You can use [**pipx**](https://pipx.pypa.io/stable/):
+## Quick Start
 
 ```shell
+# ---------------------------------------------------------------------------- #
+# Install Mamba and SAMtools manually. Since conda-packaged SAMtools           #
+# occasionally encounters issues, this workflow presumes that samtools is      #
+# executable within your system's PATH.                                        #
+# ---------------------------------------------------------------------------- #
+
+# Install Snakemake and eido using pipx (https://pipx.pypa.io/stable/)
 pipx install snakemake
 pipx inject snakemake eido
-```
 
-3. Clone the repository and copy the example configuration files:
-
-```shell
+# Clone the repository
 git clone https://github.com/mhjiang97/smk_rnaseq.git
 cd smk_rnaseq/
+# Initialize configuration
 cp config/.config.yaml config/config.yaml
 cp config/pep/.config.yaml config/pep/config.yaml
 ```
 
 ## Configuration
 
-### Config File
+### Main Configuration
 
-The main configuration file (`config/config.yaml`) contains:
+Edit `config/config.yaml`:
 
 - `dir_data`: Directory containing raw FASTQ files (required)
 - `index_salmon`: Path to Salmon transcriptome index (required)
@@ -82,9 +86,9 @@ The main configuration file (`config/config.yaml`) contains:
 
 All default values are defined in the validation schema (`workflow/schemas/config.schema.yaml`).
 
-### Profile
+### Execution Profile
 
-The default profile (`workflow/profiles/default/config.yaml`) configures execution parameters:
+Edit `workflow/profiles/default/config.yaml` that configures execution parameters including threads and resource allocation:
 
 - `printshellcmds`:  True
 - `keep-incomplete`: True
@@ -97,28 +101,25 @@ The default profile (`workflow/profiles/default/config.yaml`) configures executi
 
 ### Sample Metadata
 
-This workflow uses [**Portable Encapsulated Projects (PEP)**](https://pep.databio.org/) to manage sample metadata.
+This workflow uses [**Portable Encapsulated Projects (PEP)**](https://pep.databio.org/) for sample management.
 
 Sample configuration (`config/pep/config.yaml`) specifies the path to your sample table and other attributes.
 
 The sample table must include these mandatory columns:
 
-- `sample_name`: Unique identifier for each sample (required by PEP)
-- `library_layout`: Sequencing strategy, must be either `"paired-end"` or `"single-end"`
+| `sample_name`                                       | `library_layout`                                                     |
+| --------------------------------------------------- | -------------------------------------------------------------------- |
+| Unique identifier for each sample (required by PEP) | Sequencing strategy, must be either `"paired-end"` or `"single-end"` |
 
 Another validation schema (`workflow/schemas/pep.schema.yaml`) ensures that the sample table meets the required format.
 
 ## Execution
 
-After the configuration, you can create environments first:
-
 ```shell
+# Create environments
 snakemake --conda-create-envs-only
-```
 
-Then run the workflow:
-
-```shell
+# Run the workflow
 snakemake
 ```
 
