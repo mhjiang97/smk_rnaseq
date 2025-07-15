@@ -231,7 +231,7 @@ The main results are:
 - **fastp/**
   - Trimmed reads: `{sample}/{sample}[_R1/_R2].fq.gz`
 
-- **fastqc/** – QC reports _before_ trimming
+- **fastqc/**
   - Raw reads: `{sample}/{sample}[_1/_2]_fastqc.html`
   - Trimmed reads: `fastp/{sample}/{sample}[_1/_2]_fastqc.html`
 
