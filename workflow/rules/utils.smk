@@ -25,13 +25,13 @@ def get_targets():
         targets += [f"fastp/{sample}/{sample}.json" for sample in SAMPLES]
         if TO_RUN_FASTQC:
             targets += [f"fastqc/fastp/{sample}" for sample in SAMPLES]
-        if TO_RUN_MULTIQC:
-            targets += ["multiqc/fastp/multiqc_report.html"]
+            if TO_RUN_MULTIQC:
+                targets += ["multiqc/fastp/multiqc_report.html"]
     else:
         if TO_RUN_FASTQC:
             targets += [f"fastqc/{sample}" for sample in SAMPLES]
-        if TO_RUN_MULTIQC:
-            targets += ["multiqc/multiqc_report.html"]
+            if TO_RUN_MULTIQC:
+                targets += ["multiqc/multiqc_report.html"]
 
     return targets
 
