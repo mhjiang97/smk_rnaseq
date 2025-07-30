@@ -37,6 +37,6 @@ for annotator in ANNOTATORS:
         include: f"rules/annotator/{annotator}.smk"
 
 
-include: "rules/mutation/hard_filter.smk"
-include: "rules/mutation/extract_annotations.smk"
-include: "rules/mutation/convert_annotations.smk"
+include: "rules/filtration/hard_filter.smk"
+include: "rules/filtration/extract_annotations.smk"
+include: "rules/filtration/convert_annotations.smk"
