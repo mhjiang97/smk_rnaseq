@@ -4,6 +4,7 @@ rule snpeff_check:
     input:
         vcf="{caller}/{sample}/{sample}.vcf",
         fasta=config["fasta"],
+        dir_cache=path_cache_snpeff,
     output:
         vcf=update("{caller}/{sample}/{sample}.snpeff.vcf"),
     params:
@@ -28,7 +29,7 @@ rule snpeff_check:
         vcf={output.vcf}
         html=${{vcf%.vcf}}.html
         snpEff -Xmx{resources.mem_mb}M \\
-            -nodownload -v -lof \\
+            -nodownload -v -lof -canon \\
             -dataDir {params.cache} -s ${{html}} \\
             {params.genome}.{params.version} {input.vcf} > {output.vcf}; }} \\
         1> {log} 2>&1

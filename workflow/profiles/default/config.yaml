@@ -1,5 +1,6 @@
 software-deployment-method:
   - conda
+conda-prefix: /home/mjhk/.snakemake/envs/smk_rnaseq
 printshellcmds: True
 keep-incomplete: True
 cores: 80
@@ -13,6 +14,7 @@ set-threads:
   star: 10
   star_index: 10
   haplotypecaller: 10
+  mutect2: 10
   vep: 10
   fastp_paired_end: 4
   fastp_single_end: 4
@@ -29,6 +31,10 @@ set-resources:
   apply_bqsr:
     mem_mb: 50000  # 50GB
   haplotypecaller:
-    mem_mb: 100000  # 50GB
+    mem_mb: 100000  # 100GB
+  mutect2:
+    mem_mb: 100000  # 100GB
+  filter_mutect_calls:
+    mem_mb: 50000  # 50GB
   snpeff:
     mem_mb: 50000  # 50GB

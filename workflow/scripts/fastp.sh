@@ -7,11 +7,10 @@ set -x
 { sample=${snakemake_wildcards[sample]}
 json=${snakemake_output[json]}
 html=${snakemake_output[html]}
+layout=${snakemake_params[layout]}
 threads=${snakemake[threads]}
-n_input=${#snakemake_input[@]}
 
-if [ "${n_input}" -eq 4 ]; then
-    pe=true
+if [ "${layout}" == "paired-end" ]; then
     fq_1=${snakemake_input[fq_1]}
     fq_2=${snakemake_input[fq_2]}
     fq_1_clean=${snakemake_output[fq_1]}
@@ -19,18 +18,16 @@ if [ "${n_input}" -eq 4 ]; then
     fq_1_up=${snakemake_output[fq_1_unpaired]}
     fq_2_up=${snakemake_output[fq_2_unpaired]}
     fq_failed=${snakemake_output[fq_failed]}
-
-elif [ "${n_input}" -eq 2 ]; then
-    pe=false
+elif [ "${layout}" == "single-end" ]; then
     fq=${snakemake_input[fq]}
     fq_clean=${snakemake_output[fq]}
     fq_failed=${snakemake_output[fq_failed]}
 else
-    echo "$(date +"%Y-%m-%d %H:%M:%S") [ERROR] Unexpected number of inputs: ${snakemake_input[*]}"
+    echo "$(date +"%Y-%m-%d %H:%M:%S") [ERROR] Unexpected layout: ${layout}"
     exit 1
 fi
 
-if [ ${pe} == true ]; then
+if [ "${layout}" == "paired-end" ]; then
     fastp \
         --thread "${threads}" --detect_adapter_for_pe \
         --in1 "${fq_1}" --in2 "${fq_2}" \

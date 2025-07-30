@@ -10,6 +10,7 @@ rule base_recalibrator:
         polymorphism_known=config["polymorphism_known"],
     resources:
         mem_mb=1,
+        tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     log:
         "logs/{sample}/base_recalibrator.log",
     shell:
@@ -22,7 +23,8 @@ rule base_recalibrator:
         gatk BaseRecalibrator \\
             --java-options "-Xmx{resources.mem_mb}M -XX:-UsePerfData" \\
             --input {input.bam} --output {output.table} \\
-            --reference {input.fasta} ${{known_sites}}; }} \\
+            --reference {input.fasta} ${{known_sites}} \\
+            --tmp-dir {resources.tmpdir}; }} \\
         1> {log} 2>&1
         """
 
@@ -42,14 +44,18 @@ rule apply_bqsr:
         ),
     resources:
         mem_mb=1,
+        tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     log:
         "logs/{sample}/apply_bqsr.log",
     shell:
         """
         {{ gatk ApplyBQSR \\
             --java-options "-Xmx{resources.mem_mb}M -XX:-UsePerfData" \\
-            --input {input.bam} --output {output.bam} \\
-            --bqsr-recal-file {input.table} --reference {input.fasta}
+            --input {input.bam} \\
+            --output {output.bam} \\
+            --reference {input.fasta} \\
+            --bqsr-recal-file {input.table} \\
+            --tmp-dir {resources.tmpdir}
 
         cp {output.bai} {output.bai_renamed}
         touch {output.bai_renamed}; }} \\

@@ -6,7 +6,6 @@ set -x
 
 
 { sample=${snakemake_wildcards[sample]}
-n_input=${#snakemake_input[@]}
 gtf=${snakemake_input[gtf]}
 bam=${snakemake_output[bam]}
 bai=${snakemake_output[bai]}
@@ -14,23 +13,25 @@ bam_renamed=${snakemake_output[bam_renamed]}
 bai_renamed=${snakemake_output[bai_renamed]}
 threads=${snakemake[threads]}
 index=${snakemake_params[index]}
-read_group=${snakemake_params[read_group]}
+layout=${snakemake_params[layout]}
+args=${snakemake_params[args]}
 mem_mb=${snakemake_resources[mem_mb]}
 
 out_dir=$(dirname "${bam}")
 
-if [ "${n_input}" -eq 8 ]; then
+if [ "${layout}" == "paired-end" ]; then
     files_in=("${snakemake_input[fq_1]}" "${snakemake_input[fq_2]}")
-elif [ "${n_input}" -eq 6 ]; then
+elif [ "${layout}" == "single-end" ]; then
     files_in=("${snakemake_input[fq]}")
 else
-    echo "$(date +"%Y-%m-%d %H:%M:%S") [ERROR] Unexpected number of inputs: ${snakemake_input[*]}"
+    echo "$(date +"%Y-%m-%d %H:%M:%S") [ERROR] Unexpected layout: ${layout}"
     exit 1
 fi
 
 [[ "${files_in[0]}" == *".gz" ]] && cmd_read="zcat" || cmd_read="cat"
 
 STAR \
+    "${args}" \
     --runThreadN "${threads}" \
     --genomeDir "${index}" \
     --twopassMode Basic \

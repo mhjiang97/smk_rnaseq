@@ -4,6 +4,7 @@ rule vep:
     input:
         vcf="{caller}/{sample}/{sample}.vcf",
         fasta=config["fasta"],
+        dir_cache=path_cache_vep,
     output:
         vcf=protected("{caller}/{sample}/{sample}.vep.vcf"),
         html="{caller}/{sample}/{sample}.vep.html",

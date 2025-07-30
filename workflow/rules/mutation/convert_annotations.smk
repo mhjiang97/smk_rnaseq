@@ -44,7 +44,7 @@ LOF[*].GENE LOF[*].GENEID LOF[*].NUMTR LOF[*].PERC \\
 NMD[*].GENE NMD[*].GENEID NMD[*].NUMTR NMD[*].PERC"
 
         if [ "{wildcards.caller}" == "haplotypecaller" ]; then
-            fields_fmt="GEN[*].AD GEN[*].DP GEN[*].GQ GEN[*].GT GEN[*].PL"
+            fields_fmt="GEN[*].F1R2 GEN[*].F2R1 GEN[*].AD GEN[*].DP GEN[*].GQ GEN[*].GT GEN[*].PL"
         fi
 
         SnpSift extractFields -s "," -e "." {input.vcf} ${{fields_common}} ${{fields_fmt}} \\

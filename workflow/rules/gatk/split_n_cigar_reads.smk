@@ -1,18 +1,3 @@
-rule create_fasta_dict:
-    conda:
-        "../../envs/gatk.yaml"
-    input:
-        fasta=config["fasta"],
-    output:
-        dict=dict_fasta,
-    log:
-        "logs/create_fasta_dict.log",
-    shell:
-        """
-        gatk CreateSequenceDictionary --java-options \"-XX:-UsePerfData\" --REFERENCE {input.fasta} 1> {log} 2>&1
-        """
-
-
 rule split_n_cigar_reads:
     conda:
         "../../envs/gatk.yaml"

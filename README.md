@@ -28,11 +28,11 @@ project/
 
 </details>
 
-**Note:** The workflow expects all FASTQ files to be located in `dir_data` specified in `config/config.yaml`, with no sample-specific subfolders (See [Main Configuration](#main-configuration)).
+**Note:** The workflow expects all FASTQ files to be located in *dir_data* specified in `config/config.yaml`, with no sample-specific subfolders (See [Main Configuration](#main-configuration)).
 
 **Hints:** You can create symbolic links (`ln -s source_file target_file`) pointing to original FASTQ files.
 
-*This adapted structure enables an organized layout for each project.*
+*This structure could enable an organized layout for each project.*
 
 ## Prerequisites
 
@@ -230,7 +230,7 @@ snakemake
 
 ## Output
 
-By default, all results are written to the directory you specify as `dir_run` (or to `workflow/` if `dir_run` is unset).
+By default, all results are written to the directory you specify as *dir_run* (or to `workflow/` if *dir_run* is unset).
 
 <details>
 

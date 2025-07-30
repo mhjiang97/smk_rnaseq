@@ -3,21 +3,28 @@ include: "rules/common.smk"
 
 rule all:
     input:
-        targets,
+        get_targets(),
 
 
 include: "rules/qc/fastp.smk"
 include: "rules/qc/qc.smk"
 include: f"rules/quantifier/{QUANTIFIER}.smk"
 include: f"rules/mapper/{MAPPER}.smk"
+include: "rules/gatk/create_sequence_dictionary.smk"
 include: "rules/gatk/mark_duplicates.smk"
 include: "rules/gatk/split_n_cigar_reads.smk"
 include: "rules/gatk/base_recalibration.smk"
+include: "rules/samtools/faidx.smk"
+include: "rules/gatk/gtf_to_bed.smk"
+include: "rules/bedtools/slop_bed.smk"
 
 
 for caller in CALLERS:
 
     include: f"rules/caller/{caller}.smk"
+
+
+include: "rules/annotator/cache.smk"
 
 
 for annotator in ANNOTATORS:
@@ -30,5 +37,6 @@ for annotator in ANNOTATORS:
         include: f"rules/annotator/{annotator}.smk"
 
 
-include: "rules/mutation/hard_filter_separate.smk"
+include: "rules/mutation/hard_filter.smk"
+include: "rules/mutation/extract_annotations.smk"
 include: "rules/mutation/convert_annotations.smk"

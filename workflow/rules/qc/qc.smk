@@ -7,6 +7,8 @@ rule fastqc:
             then=directory("fastqc/fastp/{sample}"),
             otherwise=directory("fastqc/{sample}"),
         ),
+    params:
+        layout=get_library_layout,
     threads: 1
     log:
         "logs/{sample}/fastqc.log",
@@ -16,7 +18,7 @@ rule fastqc:
 
 rule multiqc:
     input:
-        branch(
+        fastqcs=branch(
             TO_CLEAN_FQ,
             then=expand("fastqc/fastp/{sample}", sample=SAMPLES),
             otherwise=expand("fastqc/{sample}", sample=SAMPLES),

@@ -36,6 +36,7 @@ rule salmon:
         quant="salmon/{sample}/quant.sf",
     params:
         index=config["index_salmon"],
+        layout=get_library_layout,
     threads: 1
     log:
         "logs/{sample}/salmon.log",

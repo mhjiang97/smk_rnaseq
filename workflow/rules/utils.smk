@@ -1,3 +1,41 @@
+import logging
+from math import floor
+from pathlib import Path
+
+import yaml
+from rich.console import Console
+from rich.logging import RichHandler
+
+
+def get_targets():
+    targets = []
+
+    if QUANTIFIER == "salmon":
+        targets += [f"{QUANTIFIER}/{sample}/quant.sf" for sample in SAMPLES]
+
+    targets += [
+        f"{caller}/{sample}/{sample}.{mutation}{suffix}"
+        for sample in SAMPLES
+        for caller in CALLERS
+        for mutation in MUTATIONS
+        for suffix in [".vep.maf", ".snpeff.tsv"]
+    ]
+
+    if TO_CLEAN_FQ:
+        targets += [f"fastp/{sample}/{sample}.json" for sample in SAMPLES]
+        if TO_RUN_FASTQC:
+            targets += [f"fastqc/fastp/{sample}" for sample in SAMPLES]
+        if TO_RUN_MULTIQC:
+            targets += ["multiqc/fastp/multiqc_report.html"]
+    else:
+        if TO_RUN_FASTQC:
+            targets += [f"fastqc/{sample}" for sample in SAMPLES]
+        if TO_RUN_MULTIQC:
+            targets += ["multiqc/multiqc_report.html"]
+
+    return targets
+
+
 # *--------------------------------------------------------------------------* #
 # * Functions to validate files in the config file and VEP cache version     * #
 # *--------------------------------------------------------------------------* #
@@ -46,6 +84,19 @@ def validate_files(config, parameters):
             raise ValueError()
 
 
+def validate_extra_arguments(config):
+    if "args_extra" in config:
+        for r in config["args_extra"].keys():
+            if r not in RULES:
+                logger.error(
+                    f"[bold red]✖ Invalid rule name[/]: '{r}' in 'args_extra'."
+                )
+                logger.info(
+                    f"[bold cyan]Hint:[/] Available rules are: {', '.join(RULES)}."
+                )
+                raise ValueError()
+
+
 def perform_validations_with_rich(config, vep_env_path, file_params):
     root = logging.getLogger()
     old_level = root.level
@@ -62,13 +113,14 @@ def perform_validations_with_rich(config, vep_env_path, file_params):
 
     validate_vep_version(config, vep_env_path)
     validate_files(config, file_params)
+    validate_extra_arguments(config)
 
     root.setLevel(old_level)
     root.handlers = old_handlers
 
 
 # *--------------------------------------------------------------------------* #
-# * Functions to get input files for rules                                   * #
+# * Functions to get input files and parameters                              * #
 # *--------------------------------------------------------------------------* #
 def get_fastq_files(wildcards):
     sample = wildcards.sample
@@ -83,3 +135,20 @@ def get_fastq_files(wildcards):
         return {"fq": f"{dir_base}/{{sample}}{SUFFIX_READ_SE}"}
     else:
         raise ValueError(f"Sample {sample} not found in SAMPLES_PE or SAMPLES_SE.")
+
+
+def get_library_layout(wildcards):
+    sample = wildcards.sample
+    layout = DF_SAMPLE["library_layout"][sample]
+
+    if layout not in ["paired-end", "single-end"]:
+        raise ValueError(f"Unexpected library layout '{layout}' for sample '{sample}'.")
+
+    return layout
+
+
+def get_extra_arguments(rule_name):
+    if "args_extra" in config and rule_name in config["args_extra"]:
+        return config["args_extra"][rule_name]
+
+    return ""

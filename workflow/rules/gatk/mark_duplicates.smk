@@ -11,6 +11,7 @@ rule mark_duplicates:
         metrics=f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.metrics.txt",
     resources:
         mem_mb=1,
+        tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     log:
         "logs/{sample}/mark_duplicates.log",
     shell:
@@ -18,8 +19,10 @@ rule mark_duplicates:
         {{ gatk MarkDuplicates \\
             --java-options \"-Xmx{resources.mem_mb}M -XX:-UsePerfData\" \\
             --INPUT {input.bam}  --OUTPUT {output.bam} --METRICS_FILE {output.metrics} \\
-            --REMOVE_DUPLICATES false --CREATE_INDEX true --ASSUME_SORT_ORDER coordinate --REFERENCE_SEQUENCE {input.fasta}
+            --REMOVE_DUPLICATES false --CREATE_INDEX true --ASSUME_SORT_ORDER coordinate --REFERENCE_SEQUENCE {input.fasta} \\
+            --TMP_DIR {resources.tmpdir}
 
-        cp {output.bai} {output.bai_renamed}; }} \\
+        cp {output.bai} {output.bai_renamed}
+        touch {output.bai_renamed}; }} \\
         1> {log} 2>&1
         """

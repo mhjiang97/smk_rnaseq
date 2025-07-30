@@ -10,6 +10,8 @@ rule fastp_paired_end:
         fq_failed="fastp/{sample}/{sample}.failed.fq.gz",
         json="fastp/{sample}/{sample}.json",
         html="fastp/{sample}/{sample}.html",
+    params:
+        layout=get_library_layout,
     threads: 1
     log:
         "logs/{sample}/fastp_paired_end.log",
@@ -25,6 +27,8 @@ rule fastp_single_end:
         fq_failed="fastp/{sample}/{sample}.failed.fq.gz",
         json="fastp/{sample}/{sample}.json",
         html="fastp/{sample}/{sample}.html",
+    params:
+        layout=get_library_layout,
     threads: 1
     log:
         "logs/{sample}/fastp_single_end.log",

@@ -4,6 +4,8 @@ rule star_index:
     input:
         gtf=config["gtf"],
         fasta=config["fasta"],
+    params:
+        args=get_extra_arguments("star_index"),
     output:
         dir=protected(directory(config["index_star"])),
         index_sa=f"{config['index_star']}/SA",
@@ -12,7 +14,9 @@ rule star_index:
         "logs/star_index.log",
     shell:
         """
-        STAR --runMode genomeGenerate \\
+        STAR \\
+            {params.args} \\
+            --runMode genomeGenerate \\
             --runThreadN {threads} \\
             --genomeDir {output.dir} \\
             --genomeFastaFiles {input.fasta} \\
@@ -36,6 +40,8 @@ rule star:
         bai_renamed="star/{sample}/{sample}.sorted.bam.bai",
     params:
         index=config["index_star"],
+        layout=get_library_layout,
+        args=get_extra_arguments("star"),
     threads: 1
     resources:
         mem_mb=1,

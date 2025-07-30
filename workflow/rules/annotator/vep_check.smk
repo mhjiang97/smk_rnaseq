@@ -4,6 +4,7 @@ rule vep_check:
     input:
         vcf="{caller}/{sample}/{sample}.vcf",
         fasta=config["fasta"],
+        dir_cache=path_cache_vep,
     output:
         vcf=update("{caller}/{sample}/{sample}.vep.vcf"),
     params:
