@@ -2,4 +2,5 @@
 config/pep/*.csv
 config/config.yaml
 config/pep/config.yaml
+workflow/profiles/default/config.yaml
 dag.pdf
