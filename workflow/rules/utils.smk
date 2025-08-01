@@ -152,3 +152,10 @@ def get_extra_arguments(rule_name):
         return config["args_extra"][rule_name]
 
     return ""
+
+
+def get_haplotypecaller_bed():
+    if SLOP > 0:
+        return bed_transcript_slopped
+    else:
+        return bed_transcript

@@ -3,9 +3,7 @@ rule haplotypecaller:
         "../../envs/gatk4.1.yaml"
     input:
         bam=f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.splitn.recal.bam",
-        bed=(
-            bed_transcript_slopped if config["slop_transcript"] > 0 else bed_transcript
-        ),
+        bed=get_haplotypecaller_bed(),
         fasta=config["fasta"],
         dbsnp=config["dbsnp"],
     output:
