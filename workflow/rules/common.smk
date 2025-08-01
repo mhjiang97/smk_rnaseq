@@ -21,9 +21,6 @@ pepfile: "config/pep/config.yaml"
 pepschema: "../schemas/pep.schema.yaml"
 
 
-path_env_vep = Path("workflow/envs/vep.yaml").resolve()
-
-
 if config["dir_run"] and config["dir_run"] is not None:
 
     workdir: config["dir_run"]
@@ -124,7 +121,7 @@ path_cache_vep = (
 # *--------------------------------------------------------------------------* #
 perform_validations_with_rich(
     config,
-    path_env_vep,
+    workflow.source_path("../envs/vep.yaml"),
     [
         "gtf",
         "fasta",
