@@ -101,11 +101,11 @@ wildcard_constraints:
 # *--------------------------------------------------------------------------* #
 # * Files and directories required by a few rules                            * #
 # *--------------------------------------------------------------------------* #
-dict_fasta = Path(config["fasta"]).with_suffix(".dict").__str__()
+dict_fasta = Path(config["fasta"]).with_suffix(".dict").as_posix()
 fai_fasta = f"{config['fasta']}.fai"
-bed_transcript = Path(config["gtf"]).with_suffix(".transcript.bed").__str__()
+bed_transcript = Path(config["gtf"]).with_suffix(".transcript.bed").as_posix()
 bed_transcript_slopped = (
-    Path(bed_transcript).with_suffix(f".slopped_{config['slop_transcript']}.bed").__str__()
+    Path(bed_transcript).with_suffix(f".slopped_{config['slop_transcript']}.bed").as_posix()
 )
 
 path_cache_snpeff = (
