@@ -1,7 +1,4 @@
 channels:
-  - conda-forge
-  - anaconda
   - bioconda
-  - defaults
 dependencies:
   - salmon=1.10.3
