@@ -1,3 +1,6 @@
+quantification: true
+mutation: true
+
 dir_run: /projects/project_xxx/analysis/rnaseq
 dir_data: /projects/project_xxx/data/rnaseq
 

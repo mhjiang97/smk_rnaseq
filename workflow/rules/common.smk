@@ -49,6 +49,8 @@ DIR_DATA = config["dir_data"]
 
 SLOP = config["slop_transcript"]
 
+TO_QUANTIFY = config["quantification"]
+TO_CALL_MUTATIONS = config["mutation"]
 TO_CLEAN_FQ = config["clean_fq"]
 TO_RUN_FASTQC = config["run_fastqc"]
 TO_RUN_MULTIQC = config["run_multiqc"]

@@ -10,16 +10,18 @@ from rich.logging import RichHandler
 def get_targets():
     targets = []
 
-    if QUANTIFIER == "salmon":
-        targets += [f"{QUANTIFIER}/{sample}/quant.sf" for sample in SAMPLES]
+    if TO_QUANTIFY:
+        if QUANTIFIER == "salmon":
+            targets += [f"{QUANTIFIER}/{sample}/quant.sf" for sample in SAMPLES]
 
-    targets += [
-        f"{caller}/{sample}/{sample}.{mutation}{suffix}"
-        for sample in SAMPLES
-        for caller in CALLERS
-        for mutation in MUTATIONS
-        for suffix in [".vep.maf", ".snpeff.tsv"]
-    ]
+    if TO_CALL_MUTATIONS:
+        targets += [
+            f"{caller}/{sample}/{sample}.{mutation}{suffix}"
+            for sample in SAMPLES
+            for caller in CALLERS
+            for mutation in MUTATIONS
+            for suffix in [".vep.maf", ".snpeff.tsv"]
+        ]
 
     if TO_CLEAN_FQ:
         targets += [f"fastp/{sample}/{sample}.json" for sample in SAMPLES]
