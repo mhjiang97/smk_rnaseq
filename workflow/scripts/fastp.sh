@@ -37,7 +37,7 @@ if [ "${layout}" == "paired-end" ]; then
         --json "${json}" --html "${html}"
 else
     fastp \
-        --thread "${threads}" --detect_adapter_for_pe \
+        --thread "${threads}" \
         -i "${fq}" -o "${fq_clean}" --failed_out "${fq_failed}" \
         --json "${json}" --html "${html}"
 fi; } \
