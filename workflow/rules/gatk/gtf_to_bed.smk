@@ -5,7 +5,7 @@ rule gtf_to_bed_transcript:
         gtf=config["gtf"],
         dict=dict_fasta,
     output:
-        bed=bed_transcript,
+        bed=f"{bed_transcript}.tmp",
     params:
         args=get_extra_arguments("gtf_to_bed_transcript"),
     log:
