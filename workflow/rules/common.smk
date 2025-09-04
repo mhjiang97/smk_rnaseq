@@ -31,6 +31,7 @@ if config["dir_run"] and config["dir_run"] is not None:
 # *--------------------------------------------------------------------------* #
 MAPPER = config["mapper"]
 QUANTIFIER = config["quantifier"]
+QUANTIFIER_TE = config["quantifier_te"]
 CALLERS = ["haplotypecaller"]
 ANNOTATORS = config["annotators"]
 
@@ -50,6 +51,7 @@ DIR_DATA = config["dir_data"]
 SLOP = config["slop_transcript"]
 
 TO_QUANTIFY = config["quantification"]
+TO_QUANTIFY_TE = config["quantification_te"]
 TO_CALL_MUTATIONS = config["mutation"]
 TO_CLEAN_FQ = config["clean_fq"]
 TO_RUN_FASTQC = config["run_fastqc"]

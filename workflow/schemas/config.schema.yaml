@@ -4,6 +4,9 @@ properties:
   quantification:
     type: boolean
     default: true
+  quantification_te:
+    type: boolean
+    default: true
   mutation:
     type: boolean
     default: true
@@ -19,6 +22,10 @@ properties:
     type: string
     enum: ["salmon"]
     default: "salmon"
+  quantifier_te:
+    type: string
+    enum: ["featurecounts"]
+    default: "featurecounts"
   annotators:
     type: array
     items:
@@ -36,6 +43,8 @@ properties:
   index_star:
     type: string
   gtf:
+    type: string
+  gtf_te:
     type: string
   fasta:
     type: string

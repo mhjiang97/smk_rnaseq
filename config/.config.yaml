@@ -1,4 +1,5 @@
 quantification: true
+quantification_te: false
 mutation: true
 
 dir_run: /projects/project_xxx/analysis/rnaseq
@@ -6,6 +7,7 @@ dir_data: /projects/project_xxx/data/rnaseq
 
 mapper: star
 quantifier: salmon
+quantifier_te: featurecounts
 annotators:
   - vep
   - snpeff
@@ -17,6 +19,7 @@ index_salmon: /doc/tool/quantifier/salmon/GRCh38
 index_star: /doc/tool/mapper/star/GRCh38
 
 gtf: /doc/ref/GRCh38/gtf/gencode.v44.annotation.gtf
+gtf_te: /doc/tool/TE/gtf/hg38_gencode_rmsk_indi.gtf
 fasta: /doc/ref/GRCh38/fasta/GRCh38.primary_assembly.genome.fa
 fasta_transcriptome: /doc/ref/GRCh38/fasta/gencode.v44.transcripts.fa
 

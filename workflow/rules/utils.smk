@@ -14,6 +14,14 @@ def get_targets():
         if QUANTIFIER == "salmon":
             targets += [f"{QUANTIFIER}/{sample}/quant.sf" for sample in SAMPLES]
 
+    if TO_QUANTIFY_TE:
+        if QUANTIFIER_TE == "featurecounts":
+            targets += [
+                f"featurecounts/{sample}/te{suffix}"
+                for sample in SAMPLES
+                for suffix in [".tsv", ".unique.tsv", ".unique.overlap.tsv"]
+            ]
+
     if TO_CALL_MUTATIONS:
         targets += [
             f"{caller}/{sample}/{sample}.{mutation}{suffix}"
@@ -144,9 +152,20 @@ def get_library_layout(wildcards):
     layout = DF_SAMPLE["library_layout"][sample]
 
     if layout not in ["paired-end", "single-end"]:
-        raise ValueError(f"Unexpected library layout '{layout}' for sample '{sample}'.")
+        raise ValueError(
+            f"Unexpected library layout '{layout}' for sample '{sample}'."
+        )
 
     return layout
+
+
+def get_featurecounts_arguments(wildcards):
+    sample = wildcards.sample
+    layout = DF_SAMPLE["library_layout"][sample]
+
+    arg = "-p --countReadPairs" if layout == "paired-end" else ""
+
+    return arg
 
 
 def get_extra_arguments(rule_name):
