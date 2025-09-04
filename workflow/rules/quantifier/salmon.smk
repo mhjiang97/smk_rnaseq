@@ -27,7 +27,6 @@ rule salmon_index:
 rule salmon:
     conda:
         "../../envs/salmon.yaml"
-    priority: 10
     input:
         unpack(get_fastq_files),
         index_pos=ancient(f"{config['index_salmon']}/pos.bin"),
