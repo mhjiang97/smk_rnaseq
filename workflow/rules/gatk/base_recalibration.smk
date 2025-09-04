@@ -2,12 +2,15 @@ rule base_recalibrator:
     conda:
         "../../envs/gatk.yaml"
     input:
+        config["polymorphism_known"],
         bam=f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.splitn.bam",
         fasta=config["fasta"],
     output:
         table=protected(f"{MAPPER}/{{sample}}/{{sample}}.recal.table"),
     params:
-        polymorphism_known=config["polymorphism_known"],
+        arg_known_sites=" ".join(
+            [f"--known-sites {site}" for site in config["polymorphism_known"]]
+        ),
     resources:
         mem_mb=1,
         tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
@@ -15,17 +18,14 @@ rule base_recalibrator:
         "logs/{sample}/base_recalibrator.log",
     shell:
         """
-        {{ known_sites=""
-        for site in {params.polymorphism_known}; do
-            known_sites="${{known_sites}} --known-sites ${{site}}"
-        done
-
         gatk BaseRecalibrator \\
             --java-options "-Xmx{resources.mem_mb}M -XX:-UsePerfData" \\
-            --input {input.bam} --output {output.table} \\
-            --reference {input.fasta} ${{known_sites}} \\
-            --tmp-dir {resources.tmpdir}; }} \\
-        1> {log} 2>&1
+            --input {input.bam} \\
+            --output {output.table} \\
+            --reference {input.fasta} \\
+            {params.arg_known_sites} \\
+            --tmp-dir {resources.tmpdir} \\
+            1> {log} 2>&1
         """
 
 
