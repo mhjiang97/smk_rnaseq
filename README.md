@@ -47,6 +47,7 @@ Additional dependencies are automatically installed by **Mamba** or **conda**. E
 - [**BCFtools**](http://samtools.github.io/bcftools/)
 - [**GATK**](https://gatk.broadinstitute.org/hc/en-us)
 - [**Salmon**](https://combine-lab.github.io/salmon/)
+- [**featureCounts**](https://subread.sourceforge.net/featureCounts.html)
 - [**SnpEff**](https://pcingola.github.io/)
 - [**SnpSift**](https://pcingola.github.io/)
 - [**STAR**](https://github.com/alexdobin/STAR)
@@ -104,6 +105,10 @@ cp workflow/profiles/default/.config.yaml workflow/profiles/default/config.yaml
 <summary>Edit <code>config/config.yaml</code></summary>
 
 ```yaml
+quantification: true                                                                                # Whether to perform quantification (Default: true)
+quantification_te: false                                                                            # Whether to perform transposable element quantification (Default: false)
+mutation: true                                                                                      # Whether to perform mutation calling (Default: true)
+
 dir_run: /projects/project_xxx/analysis/rnaseq                                                      # Output directory (Optional)
 dir_data: /projects/project_xxx/data/rnaseq                                                         # Directory for raw FASTQ files (Required)
 
@@ -120,6 +125,7 @@ index_salmon: /doc/tool/quantifier/salmon/GRCh38                                
 index_star: /doc/tool/mapper/star/GRCh38                                                            # STAR index (Required. If doesn't exist, it will be generated)
 
 gtf: /doc/ref/GRCh38/gtf/gencode.v44.annotation.gtf                                                 # GTF file (Required)
+gtf_te: /doc/tool/TE/gtf/hg38_gencode_rmsk_indi.gtf                                                 # GTF file for transposable elements (Optional)
 fasta: /doc/ref/GRCh38/fasta/GRCh38.primary_assembly.genome.fa                                      # Genome FASTA file (Required)
 fasta_transcriptome: /doc/ref/GRCh38/fasta/gencode.v44.transcripts.fa                               # Transcriptome FASTA file (Required)
 
@@ -173,6 +179,8 @@ All default values are defined in the validation schema (`workflow/schemas/confi
 software-deployment-method:
   - conda
 conda-prefix: /.snakemake/envs/smk_rnaseq
+scheduler: greedy
+rerun-trigger: mtime
 printshellcmds: True
 keep-incomplete: True
 cores: 80
@@ -183,6 +191,7 @@ default-resources:
 set-threads:
   salmon: 4
   salmon_index: 10
+  featurecounts_transposable_elements: 4
   star: 10
   star_index: 10
   haplotypecaller: 10
@@ -268,6 +277,11 @@ By default, all results are written to the directory you specify as *dir_run* (o
 
 - **salmon/**
   - Transcript-level abundance estimates: `{sample}/quant.sf`
+
+- **featurecounts/**
+  - Transposable element counts: `te.tsv`
+  - Using unique mapping reads: `te.unique.tsv`
+  - Allow overlap between reads and features: `te.unique.overlap.tsv`
 
 - **star/**
   - Initial sorted alignment: `{sample}/{sample}.sorted.bam`

@@ -1,6 +1,8 @@
 software-deployment-method:
   - conda
 conda-prefix: /.snakemake/envs/smk_rnaseq
+scheduler: greedy
+rerun-trigger: mtime
 printshellcmds: True
 keep-incomplete: True
 cores: 80
@@ -11,6 +13,7 @@ default-resources:
 set-threads:
   salmon: 4
   salmon_index: 10
+  featurecounts_transposable_elements: 4
   star: 10
   star_index: 10
   haplotypecaller: 10
