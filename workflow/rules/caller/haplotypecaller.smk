@@ -3,7 +3,7 @@ rule haplotypecaller:
         "../../envs/gatk4.1.yaml"
     input:
         bam=f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.splitn.recal.bam",
-        bed=get_haplotypecaller_bed(),
+        bed=get_interval_bed(),
         fasta=config["fasta"],
         dbsnp=config["dbsnp"],
     output:
@@ -24,7 +24,9 @@ rule haplotypecaller:
             --java-options \"-Xmx{resources.mem_mb}M -XX:-UsePerfData\" \\
             --native-pair-hmm-threads {threads} \\
             --standard-min-confidence-threshold-for-calling 20 \\
-            -R {input.fasta} -I {input.bam} -O {output.vcf} \\
+            -R {input.fasta} \\
+            -I {input.bam} \\
+            -O {output.vcf} \\
             -L {input.bed} \\
             --dbsnp {input.dbsnp} \\
             --sample-ploidy 2 \\
