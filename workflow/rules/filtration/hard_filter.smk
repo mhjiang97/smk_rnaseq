@@ -19,6 +19,10 @@ rule hard_filter:
             filters_common="QUAL >= 30 & INFO/QD >= 2 & FMT/DP >= {params.min_coverage} & FMT/AD[0:1] >= {params.min_reads}"
             filters_snv="TYPE = 'snp' & INFO/SOR <= 3 & INFO/FS <= 30 & INFO/MQ >= 40 & INFO/MQRankSum >= -12.5 & INFO/ReadPosRankSum >= -8"
             filters_indel="TYPE = 'indel' & INFO/SOR <= 4 & INFO/FS <= 200 & INFO/ReadPosRankSum >= -20"
+        elif [ "{wildcards.caller}" == "mutect2" ]; then
+            filters_common="FILTER = 'PASS' & FMT/DP >= {params.min_coverage} & FMT/AD[0:1] >= {params.min_reads} & INFO/TLOD >= 6.3"
+            filters_snv="TYPE = 'snp'"
+            filters_indel="TYPE = 'indel'"
         fi
 
         formula_snvs="${{filters_common}} & ${{filters_snv}}"
