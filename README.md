@@ -256,6 +256,16 @@ The sample table must include these mandatory columns:
 | --------------------------------- | ------------------------------------------------------ |
 | Unique identifier for each sample | Sequencing strategy (`"paired-end"` or `"single-end"`) |
 
+#### Optional DNA Control Columns
+
+For RNA only mutation calling with DNA as control, add these columns:
+
+| **dna_sample_name**            | **dna_control_bam**            |
+| ------------------------------ | ------------------------------ |
+| Identifier for the matched BAM | Path to processed DNA BAM file |
+
+Multiple RNA samples can share the same DNA BAM file as their control.
+
 Another validation schema (`workflow/schemas/pep.schema.yaml`) ensures that the sample table meets the required format.
 
 ## Execution
