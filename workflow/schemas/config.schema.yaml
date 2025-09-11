@@ -18,6 +18,12 @@ properties:
     type: string
     enum: ["star"]
     default: "star"
+  callers:
+    type: array
+    items:
+      type: string
+      enum: ["haplotypecaller", "mutect2"]
+    default: ["haplotypecaller"]
   quantifier:
     type: string
     enum: ["salmon"]

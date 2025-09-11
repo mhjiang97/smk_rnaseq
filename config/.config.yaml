@@ -6,6 +6,8 @@ dir_run: /projects/project_xxx/analysis/rnaseq
 dir_data: /projects/project_xxx/data/rnaseq
 
 mapper: star
+callers:
+  - haplotypecaller
 quantifier: salmon
 quantifier_te: featurecounts
 annotators:
