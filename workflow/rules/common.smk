@@ -7,6 +7,7 @@ from snakemake.utils import validate
 
 
 include: "utils.smk"
+include: "constants.smk"
 
 
 configfile: "config/config.yaml"
@@ -27,29 +28,19 @@ if config["dir_run"] and config["dir_run"] is not None:
 
 
 # *--------------------------------------------------------------------------* #
-# * Constants                                                                * #
+# * Constant-like variables                                                  * #
 # *--------------------------------------------------------------------------* #
 MAPPER = config["mapper"]
 QUANTIFIER = config["quantifier"]
 QUANTIFIER_TE = config["quantifier_te"]
-CALLERS = ["haplotypecaller"]
+CALLERS = config["callers"]
 ANNOTATORS = config["annotators"]
-
 MUTATIONS = ["snvs", "indels"]
-
 SUFFIXES = config["suffixes_fastq"]
 SUFFIX_READ_1, SUFFIX_READ_2 = SUFFIXES["paired-end"]
 SUFFIX_READ_SE = SUFFIXES["single-end"]
-
-DF_SAMPLE = pep.sample_table
-SAMPLES = DF_SAMPLE["sample_name"]
-SAMPLES_PE = SAMPLES[DF_SAMPLE["library_layout"] == "paired-end"]
-SAMPLES_SE = SAMPLES[DF_SAMPLE["library_layout"] == "single-end"]
-
 DIR_DATA = config["dir_data"]
-
 SLOP = config["slop_transcript"]
-
 TO_QUANTIFY = config["quantification"]
 TO_QUANTIFY_TE = config["quantification_te"]
 TO_CALL_MUTATIONS = config["mutation"]
@@ -57,39 +48,17 @@ TO_CLEAN_FQ = config["clean_fq"]
 TO_RUN_FASTQC = config["run_fastqc"]
 TO_RUN_MULTIQC = config["run_multiqc"]
 TO_CHECK_ANNOTATIONS = config["check_annotations"]
+TO_LEARN_READ_ORIENTATION = False
 
-RULES = [
-    "apply_bqsr",
-    "base_recalibrator",
-    "convert_snpeff",
-    "convert_vep",
-    "create_sequence_dictionary",
-    "download_snpeff_cache",
-    "download_vep_cache",
-    "fastp_paired_end",
-    "fastp_single_end",
-    "fastqc",
-    "filter_mutect_calls",
-    "format_haplotypecaller",
-    "gtf_to_bed_transcript",
-    "haplotypecaller",
-    "hard_filter",
-    "extract_annotations",
-    "mark_duplicates",
-    "multiqc",
-    "mutect2",
-    "salmon",
-    "salmon_index",
-    "samtools_faidx",
-    "slop_bed",
-    "snpeff",
-    "snpeff_check",
-    "split_n_cigar_reads",
-    "star",
-    "star_index",
-    "vep",
-    "vep_check",
-]
+DF_SAMPLE = pep.sample_table
+SAMPLES = DF_SAMPLE["sample_name"]
+SAMPLES_PE = SAMPLES[DF_SAMPLE["library_layout"] == "paired-end"]
+SAMPLES_SE = SAMPLES[DF_SAMPLE["library_layout"] == "single-end"]
+
+if COLS_CHECK.issubset(DF_SAMPLE.columns):
+    SAMPLES_DNA = DF_SAMPLE["dna_sample_name"].dropna().unique()
+else:
+    SAMPLES_DNA = []
 
 
 # *--------------------------------------------------------------------------* #
@@ -97,13 +66,14 @@ RULES = [
 # *--------------------------------------------------------------------------* #
 wildcard_constraints:
     sample=r"|".join(SAMPLES),
+    sample_dna=r"|".join(SAMPLES_DNA),
     caller=r"|".join(CALLERS),
     mutation=r"|".join(MUTATIONS),
     annotator=r"|".join(ANNOTATORS),
 
 
 # *--------------------------------------------------------------------------* #
-# * Files and directories required by a few rules                            * #
+# * Files and directories required by rules                                  * #
 # *--------------------------------------------------------------------------* #
 dict_fasta = Path(config["fasta"]).with_suffix(".dict").as_posix()
 fai_fasta = f"{config['fasta']}.fai"
@@ -126,13 +96,5 @@ path_cache_vep = (
 perform_validations_with_rich(
     config,
     workflow.source_path("../envs/vep.yaml"),
-    [
-        "gtf",
-        "fasta",
-        "fasta_transcriptome",
-        "polymorphism_known",
-        "dbsnp",
-        "pon",
-        "resource_germline",
-    ],
+    PARAMETERS_CHECK,
 )
