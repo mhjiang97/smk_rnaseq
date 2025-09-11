@@ -152,9 +152,7 @@ def get_library_layout(wildcards):
     layout = DF_SAMPLE["library_layout"][sample]
 
     if layout not in ["paired-end", "single-end"]:
-        raise ValueError(
-            f"Unexpected library layout '{layout}' for sample '{sample}'."
-        )
+        raise ValueError(f"Unexpected library layout '{layout}' for sample '{sample}'.")
 
     return layout
 
@@ -175,8 +173,108 @@ def get_extra_arguments(rule_name):
     return ""
 
 
-def get_haplotypecaller_bed():
+def get_interval_bed():
     if SLOP > 0:
         return bed_transcript_slopped
     else:
         return bed_transcript
+
+
+def get_mutect2_inputs(wildcards):
+    sample = wildcards.sample
+
+    inputs = {
+        "bam": f"{MAPPER}/{sample}/{sample}.sorted.md.splitn.recal.bam",
+        "bed": get_interval_bed(),
+        "fasta": config["fasta"],
+        "resource_germline": config["resource_germline"],
+        "pon": config["pon"],
+    }
+
+    if COLS_CHECK.issubset(DF_SAMPLE.columns):
+        bam_dna = DF_SAMPLE["dna_control_bam"][sample]
+        name_dna = DF_SAMPLE["dna_sample_name"][sample]
+        if bam_dna and Path(bam_dna).exists() and name_dna:
+            inputs["bam_dna"] = bam_dna
+
+    return inputs
+
+
+def get_mutect2_arguments(wildcards):
+    sample = wildcards.sample
+
+    args = ""
+
+    if COLS_CHECK.issubset(DF_SAMPLE.columns):
+        bam_dna = DF_SAMPLE["dna_control_bam"][sample]
+        name_dna = DF_SAMPLE["dna_sample_name"][sample]
+        if bam_dna and Path(bam_dna).exists() and name_dna:
+            args += f"-I {bam_dna} -normal {name_dna}"
+
+    return args
+
+
+def get_dna_control_bam(wildcards):
+    sample_dna = wildcards.sample_dna
+
+    bam_dna = DF_SAMPLE["dna_control_bam"][DF_SAMPLE["dna_sample_name"] == sample_dna]
+
+    return bam_dna
+
+
+def get_calculate_contamination_inputs(wildcards):
+    sample = wildcards.sample
+
+    inputs = {
+        "table": f"mutect2/{sample}/{sample}.pileups.table",
+    }
+
+    if COLS_CHECK.issubset(DF_SAMPLE.columns):
+        bam_dna = DF_SAMPLE["dna_control_bam"][sample]
+        name_dna = DF_SAMPLE["dna_sample_name"][sample]
+        if bam_dna and Path(bam_dna).exists() and name_dna:
+            inputs["table_dna"] = f"mutect2/{name_dna}-dna/{name_dna}.pileups.table"
+
+    return inputs
+
+
+def get_calculate_contamination_arguments(wildcards):
+    sample = wildcards.sample
+
+    args = ""
+
+    if COLS_CHECK.issubset(DF_SAMPLE.columns):
+        bam_dna = DF_SAMPLE["dna_control_bam"][sample]
+        name_dna = DF_SAMPLE["dna_sample_name"][sample]
+        if bam_dna and Path(bam_dna).exists() and name_dna:
+            args += f"--matched-normal mutect2/{name_dna}-dna/{name_dna}.pileups.table"
+
+    return args
+
+
+def get_filter_mutect_calls_inputs(wildcards):
+    sample = wildcards.sample
+
+    inputs = {
+        "vcf": f"mutect2/{sample}/{sample}.raw.vcf",
+        "bed": get_interval_bed(),
+        "fasta": config["fasta"],
+        "table_contamination": f"mutect2/{sample}/{sample}.contamination.table",
+        "table_segmentation": f"mutect2/{sample}/{sample}.segmentation.table",
+    }
+
+    if TO_LEARN_READ_ORIENTATION:
+        inputs["table_artifact"] = f"mutect2/{sample}/{sample}.artifactprior.tar.gz"
+
+    return inputs
+
+
+def get_filter_mutect_calls_arguments(wildcards):
+    sample = wildcards.sample
+
+    args = ""
+
+    if TO_LEARN_READ_ORIENTATION:
+        args += f"--orientation-bias-artifact-priors mutect2/{sample}/{sample}.artifactprior.tar.gz"
+
+    return args
