@@ -18,6 +18,8 @@ include: "rules/gatk/base_recalibration.smk"
 include: "rules/samtools/faidx.smk"
 include: "rules/gatk/gtf_to_bed.smk"
 include: "rules/bedtools/slop_bed.smk"
+include: "rules/gatk/learn_read_orientation_model.smk"
+include: "rules/gatk/calculate_contamination.smk"
 
 
 for caller in CALLERS:
