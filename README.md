@@ -113,6 +113,8 @@ dir_run: /projects/project_xxx/analysis/rnaseq                                  
 dir_data: /projects/project_xxx/data/rnaseq                                                         # Directory for raw FASTQ files (Required)
 
 mapper: star                                                                                        # Alignment tool (Default: "star")
+callers:                                                                                            # Mutation calling tools (Default: ["haplotypecaller"])
+  - haplotypecaller
 quantifier: salmon                                                                                  # Quantification tool (Default: "salmon")
 annotators:                                                                                         # Variant annotation tools (Defaults: ["vep", "snpeff"])
   - vep
@@ -201,24 +203,34 @@ set-threads:
   fastp_single_end: 4
   fastqc: 4
 set-resources:
+  salmon:
+    mem_mb: 20000 # 20GB
   star:
     mem_mb: 100000  # 100GB
   mark_duplicates:
     mem_mb: 50000  # 50GB
   split_n_cigar_reads:
-    mem_mb: 100000  # 100GB
+    mem_mb: 50000  # 50GB
   base_recalibrator:
     mem_mb: 50000  # 50GB
   apply_bqsr:
     mem_mb: 50000  # 50GB
   haplotypecaller:
-    mem_mb: 100000  # 100GB
+    mem_mb: 10000  # 10GB
   mutect2:
-    mem_mb: 100000  # 100GB
+    mem_mb: 10000  # 10GB
+  learn_read_orientation_model:
+    mem_mb: 10000  # 10GB
+  get_pileup_summaries:
+    mem_mb: 10000  # 10GB
+  get_pileup_summaries_dna:
+    mem_mb: 10000  # 10GB
+  calculate_contamination:
+    mem_mb: 10000  # 10GB
   filter_mutect_calls:
-    mem_mb: 50000  # 50GB
+    mem_mb: 10000  # 10GB
   snpeff:
-    mem_mb: 50000  # 50GB
+    mem_mb: 20000  # 20GB
 ```
 
 </details>
@@ -287,7 +299,7 @@ By default, all results are written to the directory you specify as *dir_run* (o
   - Initial sorted alignment: `{sample}/{sample}.sorted.bam`
   - Final processed BAM: `{sample}/{sample}.sorted.md.splitn.recal.bam`
 
-- **haplotypecaller/**
+- **haplotypecaller/** and **mutect2/**
   - Raw calls: `{sample}/{sample}.vcf`
   - Hard-filtered variants:
     - SNVs: `{sample}/{sample}.snvs.vcf`
