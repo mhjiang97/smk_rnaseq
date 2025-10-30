@@ -11,5 +11,15 @@ properties:
           type: string
           description: Sequencing strategy, must be either "paired-end" or "single-end"
           enum: [paired-end, single-end]
+        dna_sample_name:
+          type: string
+          description: SM of the bam
+        dna_control_bam:
+          type: string
+          description: a bam file
       required:
         - library_layout
+      tangible:
+        - dna_control_bam
+      files:
+        - dna_control_bam

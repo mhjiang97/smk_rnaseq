@@ -8,7 +8,7 @@ rule mutect2:
         f1r2="mutect2/{sample}/{sample}.f1r2.tar.gz",
     params:
         min_coverage=config["min_coverage"],
-        min_qual_mapping=config["min_qual_mapping"],
+        min_qual_base=config["min_qual_base"],
         arg_dna=get_mutect2_arguments,
         args=get_extra_arguments("mutect2"),
     log:
@@ -30,7 +30,8 @@ rule mutect2:
             -L {input.bed} \\
             --f1r2-tar-gz {output.f1r2} \\
             --callable-depth {params.min_coverage} \\
-            --f1r2-min-bq {params.min_qual_mapping} \\
+            --min-base-quality-score {params.min_qual_base} \\
+            --f1r2-min-bq 20 \\
             --germline-resource {input.resource_germline} \\
             --panel-of-normals {input.pon} \\
             --dont-use-soft-clipped-bases true \\
@@ -45,7 +46,7 @@ rule filter_mutect_calls:
     input:
         unpack(get_filter_mutect_calls_inputs),
     output:
-        vcf=protected("mutect2/{sample}/{sample}.vcf"),
+        vcf=temp("mutect2/{sample}/{sample}.filtered.vcf"),
     params:
         arg_orientation=get_filter_mutect_calls_arguments,
         args=get_extra_arguments("filter_mutect_calls"),
@@ -68,4 +69,22 @@ rule filter_mutect_calls:
             --tumor-segmentation {input.table_segmentation} \\
             --tmp-dir {resources.tmpdir} \\
             > {log} 2>&1
+        """
+
+
+rule format_mutect2:
+    conda:
+        "../../envs/bcftools.yaml"
+    input:
+        vcf="mutect2/{sample}/{sample}.filtered.vcf",
+    output:
+        vcf=protected("mutect2/{sample}/{sample}.vcf"),
+    log:
+        "logs/{sample}/format_mutect2.log",
+    shell:
+        """
+        bcftools annotate \\
+            --set-id +'%CHROM\\_%POS\\_%REF\\_%FIRST_ALT' \\
+            {input.vcf} \\
+            1> {output.vcf} 2> {log}
         """

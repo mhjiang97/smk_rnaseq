@@ -45,6 +45,7 @@ version_snpeff: "105"
 
 min_reads: 3
 min_coverage: 10
+min_qual_base: 10
 min_qual_mapping: 20
 
 suffixes_fastq:
@@ -60,4 +61,4 @@ run_multiqc: true
 args_extra:
   haplotypecaller: "--annotation OrientationBiasReadCounts"
   mutect2: "--tumor-lod-to-emit 2"
-  filter_mutect_calls: "-read-filter NotSupplementaryAlignmentReadFilter"
+  filter_mutect_calls: "--read-filter NotSupplementaryAlignmentReadFilter"

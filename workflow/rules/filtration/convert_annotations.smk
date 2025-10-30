@@ -11,15 +11,23 @@ rule convert_vep:
         genome=config["genome"],
         cache=config["cache_vep"],
         species=config["species"],
+        arg_normal=get_convert_vep_arguments,
     log:
         "logs/{sample}/convert_vep.{caller}.{mutation}.log",
     shell:
         """
         vcf2maf.pl \\
-            --input-vcf {input.vcf} --output-maf {output.maf} \\
-            --ncbi-build {params.genome} --cache-version {params.version} \\
-            --ref-fasta {input.fasta} --vcf-tumor-id {wildcards.sample} --tumor-id {wildcards.sample} --vep-data {params.cache} \\
-            --species {params.species} --inhibit-vep \\
+            --input-vcf {input.vcf} \\
+            --output-maf {output.maf} \\
+            --ref-fasta {input.fasta} \\
+            --vcf-tumor-id {wildcards.sample} \\
+            --tumor-id {wildcards.sample} \\
+            --ncbi-build {params.genome} \\
+            --cache-version {params.version} \\
+            --vep-data {params.cache} \\
+            --species {params.species} \\
+            --inhibit-vep \\
+            {params.arg_normal} \\
             1> {log} 2>&1
         """
 
@@ -31,23 +39,16 @@ rule convert_snpeff:
         vcf="{caller}/{sample}/{sample}.{mutation}.snpeff.vcf",
     output:
         tsv="{caller}/{sample}/{sample}.{mutation}.snpeff.tsv",
+    params:
+        fields_common=FIELDS_COMMON,
+        fields_fmt=get_convert_snpeff_arguments,
     log:
         "logs/{sample}/convert_snpeff.{caller}.{mutation}.log",
     shell:
         """
-        {{ fields_common="CHROM POS ID REF ALT QUAL \\
-ANN[*].ALLELE ANN[*].EFFECT ANN[*].IMPACT ANN[*].GENE ANN[*].GENEID \\
-ANN[*].FEATURE ANN[*].FEATUREID ANN[*].BIOTYPE ANN[*].RANK ANN[*].HGVS_C \\
-ANN[*].HGVS_P ANN[*].CDNA_POS ANN[*].CDNA_LEN ANN[*].CDS_POS \\
-ANN[*].CDS_LEN ANN[*].AA_POS ANN[*].AA_LEN ANN[*].DISTANCE ANN[*].ERRORS \\
-LOF[*].GENE LOF[*].GENEID LOF[*].NUMTR LOF[*].PERC \\
-NMD[*].GENE NMD[*].GENEID NMD[*].NUMTR NMD[*].PERC"
-
-        if [ "{wildcards.caller}" == "haplotypecaller" ]; then
-            fields_fmt="GEN[*].F1R2 GEN[*].F2R1 GEN[*].AD GEN[*].DP GEN[*].GQ GEN[*].GT GEN[*].PL"
-        fi
-
-        SnpSift extractFields -s "," -e "." {input.vcf} ${{fields_common}} ${{fields_fmt}} \\
+        {{ SnpSift extractFields \\
+            -s ";" -e "." \\
+            {input.vcf} {params.fields_common} {params.fields_fmt} \\
             | sed '1s/GEN\\[\\*\\]\\.//g ; 1s/ANN\\[\\*\\]\\.//g ; 1s/\\[\\*\\]//g' \\
             > {output.tsv}; }} \\
         > {log} 2>&1

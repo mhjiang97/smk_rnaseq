@@ -41,6 +41,7 @@ project/
 - [**eido**](https://pep.databio.org/eido/)
 - [**SAMtools**](https://www.htslib.org)
 - [**Mamba**](https://mamba.readthedocs.io/en/latest/) (recommended) or [**conda**](https://docs.conda.io/projects/conda/en/stable/)
+- [**Pysam**](https://github.com/pysam-developers/pysam)
 
 Additional dependencies are automatically installed by **Mamba** or **conda**. Environments are defined in yaml files under `workflow/envs/`.
 
@@ -82,9 +83,10 @@ if ! command -v samtools &> /dev/null; then
     rm -rf samtools-1.22.1 samtools-1.22.1.tar.bz2
 fi
 
-# Install Snakemake and eido using pipx (https://pipx.pypa.io/stable/)
+# Install Snakemake, eido, pysam using pipx (https://pipx.pypa.io/stable/)
 pipx install snakemake
 pipx inject snakemake eido
+pipx inject snakemake pysam
 
 # Clone the repository
 git clone https://github.com/mhjiang97/smk_rnaseq.git
@@ -164,7 +166,7 @@ run_multiqc: true                                                               
 args_extra:                                                                                         # Extra arguments for tools (Optional)
   haplotypecaller: "--annotation OrientationBiasReadCounts"
   mutect2: "--tumor-lod-to-emit 2"
-  filter_mutect_calls: "-read-filter NotSupplementaryAlignmentReadFilter"
+  filter_mutect_calls: "--read-filter NotSupplementaryAlignmentReadFilter"
 ```
 
 </details>
@@ -264,7 +266,9 @@ For RNA only mutation calling with DNA as control, add these columns:
 | ------------------------------ | ------------------------------ |
 | Identifier for the matched BAM | Path to processed DNA BAM file |
 
-Multiple RNA samples can share the same DNA BAM file as their control.
+- If dna_sample_name is provided, it should match one of the @RG SM values in the DNA BAM.
+- The DNA control must represent a different sample than the RNA sample. The BAM header @RG SM of dna_control_bam must NOT equal the RNA sample_name.
+- Multiple RNA samples can share the same DNA BAM file as their control.
 
 Another validation schema (`workflow/schemas/pep.schema.yaml`) ensures that the sample table meets the required format.
 

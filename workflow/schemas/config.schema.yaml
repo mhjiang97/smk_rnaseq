@@ -88,6 +88,9 @@ properties:
   min_coverage:
     type: integer
     default: 10
+  min_qual_base:
+    type: integer
+    default: 10
   min_qual_mapping:
     type: integer
     default: 20

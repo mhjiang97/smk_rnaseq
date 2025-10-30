@@ -48,7 +48,6 @@ TO_CLEAN_FQ = config["clean_fq"]
 TO_RUN_FASTQC = config["run_fastqc"]
 TO_RUN_MULTIQC = config["run_multiqc"]
 TO_CHECK_ANNOTATIONS = config["check_annotations"]
-TO_LEARN_READ_ORIENTATION = False
 
 DF_SAMPLE = pep.sample_table
 SAMPLES = DF_SAMPLE["sample_name"]
