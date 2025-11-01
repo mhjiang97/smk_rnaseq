@@ -23,11 +23,6 @@ def get_targets():
             ]
 
     if TO_CALL_MUTATIONS:
-        # targets += [
-        #     f"{caller}/{sample}/{sample}.vcf"
-        #     for sample in SAMPLES
-        #     for caller in CALLERS
-        # ]
         targets += [
             f"{caller}/{sample}/{sample}.{mutation}{suffix}"
             for sample in SAMPLES
@@ -392,9 +387,11 @@ def get_snv_filters(wildcards):
             f"TYPE = 'snp'"
         )
         if check_dna_control(sample):
-            filters += f" & FMT/AD[1:0] >= {min_reads}"
+            sample_dna = DF_SAMPLE["dna_sample_name"][sample]
+            index_sample = 0 if sample < sample_dna else 1
+            filters += f" & FMT/AD[{index_sample}:1] >= {min_reads}"
         else:
-            filters += f" & FMT/AD[0:0] >= {min_reads}"
+            filters += f" & FMT/AD[0:1] >= {min_reads}"
     else:
         raise ValueError("Unsupported caller")
 
@@ -427,9 +424,11 @@ def get_indel_filters(wildcards):
             f"TYPE = 'indel'"
         )
         if check_dna_control(sample):
-            filters += f" & FMT/AD[1:0] >= {min_reads}"
+            sample_dna = DF_SAMPLE["dna_sample_name"][sample]
+            index_sample = 0 if sample < sample_dna else 1
+            filters += f" & FMT/AD[{index_sample}:1] >= {min_reads}"
         else:
-            filters += f" & FMT/AD[0:0] >= {min_reads}"
+            filters += f" & FMT/AD[0:1] >= {min_reads}"
     else:
         raise ValueError("Unsupported caller")
 
