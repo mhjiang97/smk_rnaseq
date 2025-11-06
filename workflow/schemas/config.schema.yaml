@@ -36,8 +36,8 @@ properties:
     type: array
     items:
       type: string
-      enum: ["vep", "snpeff"]
-    default: ["vep", "snpeff"]
+      enum: ["vep", "snpeff", "annovar"]
+    default: ["vep", "snpeff", "annovar"]
   species:
     type: string
     default: "homo_sapiens"
@@ -76,12 +76,29 @@ properties:
     type: string
   cache_vep:
     type: string
+  cache_annovar:
+    type: string
   version_vep:
     type: integer
     default: 114
   version_snpeff:
     type: string
     default: "105"
+  protocols:
+    type: object
+    properties:
+      filter:
+        type: array
+        items:
+          type: string
+      region:
+        type: array
+        items:
+          type: string
+      gene:
+        type: array
+        items:
+          type: string
   min_reads:
     type: integer
     default: 3
@@ -135,5 +152,3 @@ required:
   - dbsnp
   - pon
   - resource_germline
-  - cache_snpeff
-  - cache_vep

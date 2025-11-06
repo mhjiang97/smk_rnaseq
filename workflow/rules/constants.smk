@@ -27,6 +27,12 @@ CALLER2FMTS = {
     "mutect2": ["GT", "AD", "AF", "DP", "F1R2", "F2R1", "FAD", "SB"],
 }
 
+ANNOTATOR2SUFFIX = {
+    "vep": ".vep.maf",
+    "snpeff": ".snpeff.tsv",
+    "annovar": ".annovar.tsv",
+}
+
 RULES = [
     "apply_bqsr",
     "base_recalibrator",

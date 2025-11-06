@@ -19,6 +19,7 @@ set-threads:
   haplotypecaller: 10
   mutect2: 10
   vep: 10
+  annovar: 10
   fastp_paired_end: 4
   fastp_single_end: 4
   fastqc: 4

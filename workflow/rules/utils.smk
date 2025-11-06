@@ -28,7 +28,7 @@ def get_targets():
             for sample in SAMPLES
             for caller in CALLERS
             for mutation in MUTATIONS
-            for suffix in [".vep.maf", ".snpeff.tsv"]
+            for suffix in SUFFIXES_FINAL
         ]
 
     if TO_CLEAN_FQ:
@@ -267,7 +267,9 @@ def get_mutect2_arguments(wildcards):
 def get_dna_control_bam(wildcards):
     sample_dna = wildcards.sample_dna
 
-    bam_dna = DF_SAMPLE["dna_control_bam"][DF_SAMPLE["dna_sample_name"] == sample_dna].unique()
+    bam_dna = DF_SAMPLE["dna_control_bam"][
+        DF_SAMPLE["dna_sample_name"] == sample_dna
+    ].unique()
 
     return bam_dna
 
@@ -433,3 +435,55 @@ def get_indel_filters(wildcards):
         raise ValueError("Unsupported caller")
 
     return filters
+
+
+def convert_genome(genome):
+    map_g = {
+        "GRCh38": "hg38",
+        "GRCh37": "hg19",
+        "hg19": "hg19",
+        "hg38": "hg38",
+    }
+
+    g_new = map_g.get(genome)
+
+    if g_new is None:
+        raise ValueError(f"Unsupported genome '{genome}'")
+
+    return g_new
+
+
+def get_annovar_inputs(wildcards):
+    sample = wildcards.sample
+    caller = wildcards.caller
+
+    inputs = {
+        "annovar": f"{caller}/{sample}/av.{sample}.avinput",
+    }
+
+    for o in ["gene", "region", "filter"]:
+        values = config["protocols"][o]
+        for v in values:
+            inputs[v] = f"{config['cache_annovar']}/{GENOME2}_{v}.txt"
+
+    return inputs
+
+
+def get_annovar_arguments():
+    protocol = []
+    operation = []
+    for o in ["gene", "region", "filter"]:
+        values = config["protocols"][o]
+        for v in values:
+            protocol.append(v)
+            if o == "filter":
+                operation.append("f")
+            elif o == "region":
+                operation.append("r")
+            elif o == "gene":
+                operation.append("g")
+
+    return {
+        "protocol": ",".join(protocol),
+        "operation": ",".join(operation),
+    }
