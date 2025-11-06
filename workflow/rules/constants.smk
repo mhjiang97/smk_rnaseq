@@ -33,6 +33,8 @@ ANNOTATOR2SUFFIX = {
     "annovar": ".annovar.tsv",
 }
 
+PROTOCOLS_UCSC = ["cytoBand"]
+
 RULES = [
     "apply_bqsr",
     "base_recalibrator",
