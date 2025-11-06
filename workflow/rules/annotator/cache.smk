@@ -99,7 +99,9 @@ rule download_annovar_cache:
                 avdblist = {line.split()[0] for line in f if line.strip()}
 
             if params.file not in avdblist:
-                raise ValueError(f"Protocol {wildcards.protocol} not found in avdblist.")
+                raise ValueError(
+                    f"Protocol {wildcards.protocol} not found in avdblist."
+                )
 
         if Path(output.txt).stat().st_size > 0:
             return None
