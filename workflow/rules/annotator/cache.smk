@@ -53,7 +53,7 @@ rule download_vep_cache:
             --ASSEMBLY {params.genome} \\
             --PREFER_BIN --NO_UPDATE --AUTO cf
         fi; }} \\
-        > {log} 2>&1
+        1> {log} 2>&1
         """
 
 
@@ -67,12 +67,12 @@ rule query_annovar_protocols:
         genome=GENOME2,
     shell:
         """
-        {{ annotate_variation.pl \\
-            -buildver {params.genome} \\
-            -webfrom annovar \\
-            -downdb avdblist \\
-            {params.dir} }} \\
-        > {output.txt} 2> {log}
+        annotate_variation.pl \\
+            --buildver {params.genome} \\
+            --webfrom annovar \\
+            --downdb avdblist \\
+            {params.dir} \\
+            1> {log} 2>&1
         """
 
 
@@ -87,7 +87,7 @@ rule download_annovar_cache:
         genome=GENOME2,
         is_annovar=lambda wildcards: wildcards.protocol not in PROTOCOLS_UCSC,
         arg_webfrom=lambda wildcards: (
-            f"-webfrom annovar" if wildcards.protocol not in PROTOCOLS_UCSC else ""
+            f"--webfrom annovar" if wildcards.protocol not in PROTOCOLS_UCSC else ""
         ),
     log:
         "logs/download_annovar_cache.{protocol}.log",
@@ -109,11 +109,11 @@ rule download_annovar_cache:
         shell(
             """
             annotate_variation.pl \\
-                -buildver {params.genome} \\
-                -downdb \\
+                --buildver {params.genome} \\
+                --downdb \\
                 {params.arg_webfrom} \\
                 {wildcards.protocol} \\
                 {params.dir} \\
-            > {log} 2>&1
+                1> {log} 2>&1
             """
         )
