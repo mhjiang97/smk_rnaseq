@@ -19,7 +19,13 @@ rule salmon_index:
 
         cat {input.fasta_transcriptome} {input.fasta} > gentrome.fa
 
-        salmon index -t gentrome.fa -d decoys.txt -p {threads} -i {output.dir} --gencode --keepDuplicates; }} \\
+        salmon index \\
+            -t gentrome.fa \\
+            -d decoys.txt \\
+            -p {threads} \\
+            -i {output.dir} \\
+            --gencode \\
+            --keepDuplicates; }} \\
         1> {log} 2>&1
         """
 
