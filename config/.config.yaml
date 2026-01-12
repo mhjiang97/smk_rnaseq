@@ -41,7 +41,7 @@ check_annotations: false
 cache_vep: /.vep
 cache_snpeff: /doc/tool/annotator/snpeff
 cache_annovar: /doc/tool/annotator/annovar
-version_vep: 114
+version_vep: 115
 version_snpeff: "105"
 protocols:
   filter:
