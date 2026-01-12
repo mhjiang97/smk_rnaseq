@@ -443,6 +443,8 @@ def convert_genome(genome):
         "GRCh37": "hg19",
         "hg19": "hg19",
         "hg38": "hg38",
+        "GRCm39": "mm39",
+        "mm39": "mm39",
     }
 
     g_new = map_g.get(genome)
