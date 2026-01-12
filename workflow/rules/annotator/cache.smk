@@ -42,7 +42,7 @@ rule download_vep_cache:
         caches_aws=( $(aws s3 ls --no-sign-request ${{url_base}}/ | grep PRE | sed 's/^[[:space:]]*//' | cut -d ' ' -f 2 | sed 's/\\/$//' | tr '\n' ' ') )
 
         if [[ " ${{caches_aws[@]}} " =~ " {params.dir_src} " ]]; then
-            aws s3 --no-sign-request sync ${{url_base}}/{params.dir_src} {params.dir_trgt}
+            aws s3 --no-sign-request sync ${{url_base}}/{params.dir_src}/{params.species}/{params.dir_src} {params.dir_trgt}
         else
             vep_install \\
             --CACHEDIR {params.cache} \\
