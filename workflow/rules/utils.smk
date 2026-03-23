@@ -277,9 +277,9 @@ def determine_strandedness(wildcards):
     sample = wildcards.sample
 
     if "strandedness" in DF_SAMPLE.columns:
-        val = DF_SAMPLE["strandedness"][sample]
-        if val and str(val).strip():
-            return str(val).strip()
+        val = str(DF_SAMPLE["strandedness"][sample]).strip()
+        if val and val in ["fr-firststrand", "fr-secondstrand", "unstranded"]:
+            return val
 
     salmon_log = checkpoints.salmon.get(sample=sample).output[0]
     rseqc_txt = checkpoints.infer_experiment.get(sample=sample).output[0]
