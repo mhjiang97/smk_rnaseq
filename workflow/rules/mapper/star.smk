@@ -44,7 +44,8 @@ rule star:
         args=get_extra_arguments("star"),
     threads: 1
     resources:
-        mem_mb=1,
+        mem_mb=lambda wildcards, attempt: get_star_mem_mb(wildcards, attempt),
+        mem_mb_sort=lambda wildcards, attempt: get_star_sort_mem_mb(wildcards, attempt),
     log:
         "logs/{sample}/star.log",
     script:

@@ -1,4 +1,6 @@
 import logging
+import re
+from functools import lru_cache
 from math import floor
 from pathlib import Path
 
@@ -30,6 +32,27 @@ def get_targets():
             for mutation in MUTATIONS
             for suffix in SUFFIXES_FINAL
         ]
+        targets += [
+            f"{caller}/{sample}/{sample}.snv_strandedness.tsv"
+            for sample in SAMPLES
+            for caller in CALLERS
+        ]
+
+        if "strandedness" not in DF_SAMPLE or DF_SAMPLE["strandedness"].isna().any():
+            targets += [PATH_OUTPUT_SAMPLE_TABLE]
+
+        if SAMPLES_DNA.size > 0:
+            targets += [
+                f"{caller}/{sample}/{sample}-{sample_dna}-rna_editing.bed"
+                for sample, sample_dna in DF_SAMPLE.loc[
+                    SAMPLES_HAVE_DNA, "dna_sample_name"
+                ].items()
+                for caller in CALLERS
+            ]
+
+    if TO_CALL_FUSION:
+        if "arriba" in CALLERS_FUSION:
+            targets += [f"arriba/{sample}/fusions.tsv" for sample in SAMPLES]
 
     if TO_CLEAN_FQ:
         targets += [f"fastp/{sample}/{sample}.json" for sample in SAMPLES]
@@ -77,6 +100,35 @@ def validate_vep_version(config, env_file):
         )
 
 
+def validate_vep_container_version(config, rule_file):
+    with open(rule_file, "r") as f:
+        text = f.read()
+
+    pattern = re.compile(
+        r'docker://ensemblorg/ensembl-vep:release_(\d+(?:\.\d+)?)'
+    )
+    match = pattern.search(text)
+    if match is None:
+        logger.warning(
+            f"[bold yellow]⚠ Unable to validate VEP container version[/]: "
+            f"no 'docker://ensemblorg/ensembl-vep:release_<version>' found in '{rule_file}'."
+        )
+        return
+
+    version_container = match.group(1)
+    version_container_major = floor(float(version_container))
+    version_config = config["version_vep"]
+
+    if version_container_major != version_config:
+        logger.warning(
+            f"[bold yellow]⚠ VEP version mismatch detected[/]: "
+            f"config = [cyan]{version_config}[/], container = [magenta]{version_container_major}[/]."
+        )
+        logger.info(
+            f"[bold green]Recommendation:[/] Align the VEP version in 'config/config.yaml' with 'workflow/rules/annotator/vep.smk'."
+        )
+
+
 def validate_files(config, parameters):
     for param in parameters:
         paths = config[param]
@@ -107,7 +159,7 @@ def validate_extra_arguments(config):
                 raise ValueError()
 
 
-def perform_validations_with_rich(config, vep_env_path, file_params):
+def perform_validations_with_rich(config, vep_env_path, file_params, vep_rule_path=None):
     root = logging.getLogger()
     old_level = root.level
     old_handlers = root.handlers.copy()
@@ -122,6 +174,8 @@ def perform_validations_with_rich(config, vep_env_path, file_params):
     logger = logging.getLogger()
 
     validate_vep_version(config, vep_env_path)
+    if vep_rule_path is not None:
+        validate_vep_container_version(config, vep_rule_path)
     validate_files(config, file_params)
     validate_extra_arguments(config)
 
@@ -209,6 +263,55 @@ def get_featurecounts_arguments(wildcards):
     return arg
 
 
+def determine_strandedness(wildcards):
+    """Determine library strandedness for a sample.
+
+    First checks for a 'strandedness' column in the sample table. If absent or
+    empty, parses the Salmon quantification log to auto-detect the library type
+    from a line like:
+        [2026-03-08 23:27:57.219] [jointLog] [info] Automatically detected most likely library type as IU
+
+    Returns:
+        str: One of "fr-firststrand", "fr-secondstrand", or "unstranded".
+    """
+    sample = wildcards.sample
+
+    if "strandedness" in DF_SAMPLE.columns:
+        val = DF_SAMPLE["strandedness"][sample]
+        if val and str(val).strip():
+            return str(val).strip()
+
+    # salmon_log = f"logs/{sample}/salmon.log"
+    salmon_log = checkpoints.salmon.get(sample=sample).output[0]
+    if not Path(salmon_log).exists():
+        raise FileNotFoundError(
+            f"Cannot determine strandedness for sample '{sample}': "
+            f"no 'strandedness' column in sample table and salmon log '{salmon_log}' not found."
+        )
+
+    pattern = re.compile(r"Automatically detected most likely library type as (\S+)")
+    with open(salmon_log) as f:
+        for line in f:
+            m = pattern.search(line)
+            if m:
+                libtype = m.group(1)
+                result = SALMON_LIBTYPE_TO_STRANDEDNESS.get(libtype)
+                if result is None:
+                    raise ValueError(
+                        f"Unknown Salmon library type '{libtype}' for sample '{sample}'. "
+                        f"Expected one of: {', '.join(SALMON_LIBTYPE_TO_STRANDEDNESS)}."
+                    )
+
+                DF_SAMPLE_COPY.at[sample, "strandedness"] = result
+
+                return result
+
+    raise ValueError(
+        f"Cannot determine strandedness for sample '{sample}': "
+        f"no library type detected in salmon log '{salmon_log}'."
+    )
+
+
 def get_extra_arguments(rule_name):
     if "args_extra" in config and rule_name in config["args_extra"]:
         return config["args_extra"][rule_name]
@@ -238,7 +341,6 @@ def get_mutect2_inputs(wildcards):
 
     inputs = {
         "bam": f"{MAPPER}/{sample}/{sample}.sorted.md.splitn.recal.bam",
-        "bed": get_interval_bed(),
         "fasta": config["fasta"],
         "resource_germline": config["resource_germline"],
         "pon": config["pon"],
@@ -305,6 +407,7 @@ def get_filter_mutect_calls_inputs(wildcards):
 
     inputs = {
         "vcf": f"mutect2/{sample}/{sample}.raw.vcf",
+        "stats": f"mutect2/{sample}/{sample}.raw.vcf.stats",
         "bed": get_interval_bed(),
         "fasta": config["fasta"],
         "table_contamination": f"mutect2/{sample}/{sample}.contamination.table",
@@ -372,7 +475,7 @@ def get_snv_filters(wildcards):
         filters = (
             f"QUAL >= 30 & "
             f"INFO/QD >= 2 & "
-            f"FMT/DP >= {min_coverage} & "
+            f"FMT/DP[0] >= {min_coverage} & "
             f"FMT/AD[0:1] >= {min_reads} & "
             f"TYPE = 'snp' & "
             f"INFO/SOR <= 3 & "
@@ -382,18 +485,15 @@ def get_snv_filters(wildcards):
             f"INFO/ReadPosRankSum >= -8"
         )
     elif caller == "mutect2":
-        filters = (
-            f"FILTER = 'PASS' & "
-            f"FMT/DP >= {min_coverage} & "
-            f"INFO/TLOD >= 6.3 & "
-            f"TYPE = 'snp'"
-        )
+        filters = f"FILTER = 'PASS' & " f"INFO/TLOD >= 6.3 & " f"TYPE = 'snp'"
         if check_dna_control(sample):
             sample_dna = DF_SAMPLE["dna_sample_name"][sample]
             index_sample = 0 if sample < sample_dna else 1
             filters += f" & FMT/AD[{index_sample}:1] >= {min_reads}"
+            filters += f" & FMT/DP[{index_sample}] >= {min_coverage}"
         else:
             filters += f" & FMT/AD[0:1] >= {min_reads}"
+            filters += f" & FMT/DP[0] >= {min_coverage}"
     else:
         raise ValueError("Unsupported caller")
 
@@ -411,7 +511,7 @@ def get_indel_filters(wildcards):
         filters = (
             f"QUAL >= 30 & "
             f"INFO/QD >= 2 & "
-            f"FMT/DP >= {min_coverage} & "
+            f"FMT/DP[0] >= {min_coverage} & "
             f"FMT/AD[0:1] >= {min_reads} & "
             f"TYPE = 'indel' & "
             f"INFO/SOR <= 4 & "
@@ -419,18 +519,15 @@ def get_indel_filters(wildcards):
             f"INFO/ReadPosRankSum >= -20"
         )
     elif caller == "mutect2":
-        filters = (
-            f"FILTER = 'PASS' & "
-            f"FMT/DP >= {min_coverage} & "
-            f"INFO/TLOD >= 6.3 & "
-            f"TYPE = 'indel'"
-        )
+        filters = f"FILTER = 'PASS' & " f"INFO/TLOD >= 6.3 & " f"TYPE = 'indel'"
         if check_dna_control(sample):
             sample_dna = DF_SAMPLE["dna_sample_name"][sample]
             index_sample = 0 if sample < sample_dna else 1
             filters += f" & FMT/AD[{index_sample}:1] >= {min_reads}"
+            filters += f" & FMT/DP[{index_sample}] >= {min_coverage}"
         else:
             filters += f" & FMT/AD[0:1] >= {min_reads}"
+            filters += f" & FMT/DP[0] >= {min_coverage}"
     else:
         raise ValueError("Unsupported caller")
 
@@ -489,3 +586,106 @@ def get_annovar_arguments():
         "protocol": ",".join(protocols),
         "operation": ",".join(operations),
     }
+
+
+# *--------------------------------------------------------------------------* #
+# * Functions to estimate memory requirements                                * #
+# *--------------------------------------------------------------------------* #
+def get_star_mem_mb(wildcards, attempt=1):
+    return get_star_genome_mem_mb() + get_star_sort_mem_mb(wildcards, attempt)
+
+
+def get_star_genome_mem_mb():
+    species = config["species"]
+    genome = config["genome"]
+
+    if species in {"homo_sapiens", "mus_musculus"} or genome.startswith(
+        ("GRCh", "GRCm")
+    ):
+        mem_mb = 32000
+    else:
+        mem_mb = 16000
+
+    return max(mem_mb, get_star_index_size_mb())
+
+
+def get_star_sort_mem_mb(wildcards, attempt=1):
+    fastq_mb = 0
+
+    for fastq in get_fastq_paths(wildcards):
+        fastq_mb += estimate_fastq_input_mb(fastq)
+
+    # Keep BAM sorting memory tied to input volume, but bounded so STAR
+    # jobs remain schedulable. Retries can request more only when needed.
+    mem_mb = max(4000, fastq_mb // 4)
+
+    return min(32000, mem_mb * attempt)
+
+
+@lru_cache(maxsize=1)
+def get_star_index_size_mb():
+    dir_index = Path(config["index_star"])
+    mib = 1024 * 1024
+
+    if not dir_index.exists():
+        raise FileNotFoundError(
+            f"Cannot determine STAR index size: '{dir_index}' not found."
+        )
+
+    bytes_total = sum(
+        path.stat().st_size for path in dir_index.iterdir() if path.is_file()
+    )
+
+    return (bytes_total + mib - 1) // mib
+
+
+def get_fastq_paths(wildcards):
+    sample = wildcards.sample
+    fastqs = get_fastq_files(wildcards=wildcards)
+    paths = []
+
+    for path in fastqs.values():
+        fastq = Path(path.format(sample=sample))
+        if not fastq.exists():
+            raise FileNotFoundError(f"FASTQ '{fastq}' not found.")
+
+        paths.append(fastq)
+
+    return paths
+
+
+def estimate_fastq_input_mb(fastq):
+    mib = 1024 * 1024
+    size_mb = (fastq.stat().st_size + mib - 1) // mib
+
+    if fastq.suffix == ".gz":
+        return size_mb * 4
+
+    return size_mb
+
+
+def estimate_bam_input_mb(bam):
+    mib = 1024 * 1024
+
+    return (bam.stat().st_size + mib - 1) // mib
+
+
+def resolve_single_input_path(path_or_paths):
+    if isinstance(path_or_paths, (str, Path)):
+        return Path(path_or_paths)
+    if len(path_or_paths) != 1:
+        raise ValueError(
+            "Expected exactly one input when estimating memory, "
+            f"got {len(path_or_paths)}: {path_or_paths}"
+        )
+    return Path(path_or_paths[0])
+
+
+def get_pileup_summaries_mem_mb(bam, attempt=1):
+    bam_mb = estimate_bam_input_mb(resolve_single_input_path(bam))
+
+    # Start small, still scale with BAM size, and keep it bounded.
+    mem_mb = max(2000, bam_mb // 10)
+
+    # Retry with more memory only if a job actually fails.
+    return min(8000, mem_mb * attempt)

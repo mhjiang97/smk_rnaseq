@@ -30,13 +30,14 @@ rule salmon_index:
         """
 
 
-rule salmon:
+checkpoint salmon:
     conda:
         "../../envs/salmon.yaml"
     input:
         unpack(get_fastq_files),
         index_pos=ancient(f"{config['index_salmon']}/pos.bin"),
     output:
+        log="salmon/{sample}/logs/salmon_quant.log",
         dir=directory("salmon/{sample}"),
         quant="salmon/{sample}/quant.sf",
     params:

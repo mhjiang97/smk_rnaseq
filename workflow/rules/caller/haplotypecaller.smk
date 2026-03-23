@@ -15,7 +15,6 @@ rule haplotypecaller:
         "logs/{sample}/haplotypecaller.log",
     threads: 1
     resources:
-        mem_mb=1,
         tmpdir=lambda wildcards: f"haplotypecaller/{wildcards.sample}",
     shell:
         """

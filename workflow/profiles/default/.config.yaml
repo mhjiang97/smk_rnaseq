@@ -1,8 +1,10 @@
 software-deployment-method:
   - conda
+  - apptainer
 conda-prefix: /.snakemake/envs/smk_rnaseq
-scheduler: greedy
-rerun-trigger: mtime
+apptainer-args: "--bind /storage,/home/user"
+apptainer-prefix: /.snakemake/singularity
+# rerun-trigger: mtime
 printshellcmds: True
 keep-incomplete: True
 cores: 80
@@ -10,6 +12,8 @@ resources:
   mem_mb: 500000  # 500GB
 default-resources:
   mem_mb: 5000  # 5GB
+set-scatter:
+  split_bed: 8
 set-threads:
   salmon: 4
   salmon_index: 10
@@ -26,8 +30,6 @@ set-threads:
 set-resources:
   salmon:
     mem_mb: 20000 # 20GB
-  star:
-    mem_mb: 100000  # 100GB
   mark_duplicates:
     mem_mb: 50000  # 50GB
   split_n_cigar_reads:
@@ -42,9 +44,11 @@ set-resources:
     mem_mb: 10000  # 10GB
   learn_read_orientation_model:
     mem_mb: 10000  # 10GB
-  get_pileup_summaries:
+  gather_vcfs:
     mem_mb: 10000  # 10GB
-  get_pileup_summaries_dna:
+  merge_mutect_stats:
+    mem_mb: 10000  # 10GB
+  gather_pileup_summaries:
     mem_mb: 10000  # 10GB
   calculate_contamination:
     mem_mb: 10000  # 10GB
@@ -52,3 +56,5 @@ set-resources:
     mem_mb: 10000  # 10GB
   snpeff:
     mem_mb: 20000  # 20GB
+  vcf2bed:
+    mem_mb: 10000  # 10GB

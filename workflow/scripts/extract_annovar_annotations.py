@@ -37,13 +37,13 @@ def configure_logger(console_output=None, log_file=None, log_level="INFO"):
 
     if console_output:
         ch = logging.StreamHandler()
-        ch.setLevel(log_level)
+        ch.setLevel(log_level_constant)
         ch.setFormatter(formatter)
         logger.addHandler(ch)
 
     if log_file:
         fh = logging.FileHandler(log_file)
-        fh.setLevel(log_level)
+        fh.setLevel(log_level_constant)
         fh.setFormatter(formatter)
         logger.addHandler(fh)
 

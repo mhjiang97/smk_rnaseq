@@ -14,8 +14,8 @@ bai_renamed=${snakemake_output[bai_renamed]}
 threads=${snakemake[threads]}
 index=${snakemake_params[index]}
 layout=${snakemake_params[layout]}
+mem_mb_sort=${snakemake_resources[mem_mb_sort]}
 args=${snakemake_params[args]}
-mem_mb=${snakemake_resources[mem_mb]}
 
 out_dir=$(dirname "${bam}")
 
@@ -40,7 +40,7 @@ STAR \
     --outFileNamePrefix "${out_dir}"/ \
     --outSAMattrRGline ID:"${sample}" SM:"${sample}" LB:RNA PL:ILLUMINA \
     --sjdbGTFfile "${gtf}" \
-    --limitBAMsortRAM $((mem_mb * 1024 * 1024)) \
+    --limitBAMsortRAM $((mem_mb_sort * 1024 * 1024)) \
     --outBAMsortingThreadN "${threads}" \
     --outSAMattrIHstart 0 \
     --outSAMtype BAM SortedByCoordinate \

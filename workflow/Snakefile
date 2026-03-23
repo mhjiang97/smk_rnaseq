@@ -1,6 +1,10 @@
 include: "rules/common.smk"
 
 
+scattergather:
+    split=8,
+
+
 rule all:
     input:
         get_targets(),
@@ -9,7 +13,7 @@ rule all:
 include: "rules/qc/fastp.smk"
 include: "rules/qc/qc.smk"
 include: f"rules/quantifier/{QUANTIFIER}.smk"
-include: f"rules/mapper/{MAPPER}.smk"
+# include: f"rules/mapper/{MAPPER}.smk"
 include: f"rules/quantifier/{QUANTIFIER_TE}.smk"
 include: "rules/gatk/create_sequence_dictionary.smk"
 include: "rules/gatk/mark_duplicates.smk"
@@ -18,13 +22,26 @@ include: "rules/gatk/base_recalibration.smk"
 include: "rules/samtools/faidx.smk"
 include: "rules/gatk/gtf_to_bed.smk"
 include: "rules/bedtools/slop_bed.smk"
-include: "rules/gatk/learn_read_orientation_model.smk"
-include: "rules/gatk/calculate_contamination.smk"
+include: "rules/bedtools/merge_bed.smk"
 
 
 for caller in CALLERS:
 
     include: f"rules/caller/{caller}.smk"
+
+
+include: "rules/gatk/gather_vcfs.smk"
+include: "rules/gatk/merge_mutect_stats.smk"
+include: "rules/gatk/get_pileup_summaries.smk"
+include: "rules/gatk/gather_pileup_summaries.smk"
+include: "rules/gatk/calculate_contamination.smk"
+include: "rules/gatk/learn_read_orientation_model.smk"
+include: "rules/gatk/filter_mutect_calls.smk"
+
+
+for caller in CALLERS_FUSION:
+
+    include: f"rules/fusion/{caller}.smk"
 
 
 include: "rules/annotator/cache.smk"
@@ -43,3 +60,7 @@ for annotator in ANNOTATORS:
 include: "rules/filtration/hard_filter.smk"
 include: "rules/filtration/extract_annotations.smk"
 include: "rules/filtration/convert_annotations.smk"
+include: "rules/bedops/vcf2bed.smk"
+include: "rules/editing/bam_readcount.smk"
+include: "rules/editing/filter_bam_readcount.smk"
+include: "rules/editing/assign_strand.smk"

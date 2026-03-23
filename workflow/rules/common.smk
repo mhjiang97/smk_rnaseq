@@ -3,7 +3,9 @@
 # *--------------------------------------------------------------------------* #
 from pathlib import Path
 
-from snakemake.utils import validate
+from snakemake.utils import min_version, validate
+
+min_version("9.0.0")
 
 
 include: "utils.smk"
@@ -35,6 +37,7 @@ QUANTIFIER = config["quantifier"]
 QUANTIFIER_TE = config["quantifier_te"]
 CALLERS = config["callers"]
 ANNOTATORS = config["annotators"]
+CALLERS_FUSION = config["callers_fusion"]
 SUFFIXES_FINAL = [ANNOTATOR2SUFFIX[annotator] for annotator in ANNOTATORS]
 MUTATIONS = ["snvs", "indels"]
 SUFFIXES = config["suffixes_fastq"]
@@ -46,18 +49,24 @@ GENOME2 = convert_genome(config["genome"])
 TO_QUANTIFY = config["quantification"]
 TO_QUANTIFY_TE = config["quantification_te"]
 TO_CALL_MUTATIONS = config["mutation"]
+TO_CALL_FUSION = config["fusion"]
 TO_CLEAN_FQ = config["clean_fq"]
 TO_RUN_FASTQC = config["run_fastqc"]
 TO_RUN_MULTIQC = config["run_multiqc"]
 TO_CHECK_ANNOTATIONS = config["check_annotations"]
 
-DF_SAMPLE = pep.sample_table
-SAMPLES = DF_SAMPLE["sample_name"]
+DF_SAMPLE = pep.sample_table.set_index("sample_name", drop=False)
+DF_SAMPLE_COPY = DF_SAMPLE.copy(deep=True)
+PATH_OUTPUT_SAMPLE_TABLE = (
+    Path(pep.config["sample_table"]).with_suffix(".strandedness.csv").name
+)
+SAMPLES = DF_SAMPLE.index
 SAMPLES_PE = SAMPLES[DF_SAMPLE["library_layout"] == "paired-end"]
 SAMPLES_SE = SAMPLES[DF_SAMPLE["library_layout"] == "single-end"]
 
 if COLS_CHECK.issubset(DF_SAMPLE.columns):
     SAMPLES_DNA = DF_SAMPLE["dna_sample_name"].dropna().unique()
+    SAMPLES_HAVE_DNA = SAMPLES[DF_SAMPLE["dna_sample_name"].notna()]
 else:
     SAMPLES_DNA = []
 
@@ -71,6 +80,13 @@ wildcard_constraints:
     caller=r"|".join(CALLERS),
     mutation=r"|".join(MUTATIONS),
     annotator=r"|".join(ANNOTATORS),
+
+
+# *--------------------------------------------------------------------------* #
+# * Scatter-gather settings                                                  * #
+# *--------------------------------------------------------------------------* #
+scattergather:
+    split_bed=1,
 
 
 # *--------------------------------------------------------------------------* #
@@ -98,4 +114,5 @@ perform_validations_with_rich(
     config,
     workflow.source_path("../envs/vep.yaml"),
     PARAMETERS_CHECK,
+    workflow.source_path("annotator/vep.smk"),
 )

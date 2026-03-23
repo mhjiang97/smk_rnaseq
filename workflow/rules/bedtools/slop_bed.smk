@@ -5,7 +5,7 @@ rule slop_bed:
         bed=bed_transcript,
         genome=fai_fasta,
     output:
-        bed=bed_transcript_slopped,
+        bed=temp(f"{bed_transcript_slopped}.tmp"),
     params:
         slop_transcript=config["slop_transcript"],
         arg_pct="-pct" if config["slop_transcript"] < 1 else "",
@@ -22,6 +22,7 @@ rule slop_bed:
             {params.arg_pct} \\
             | bedtools sort \\
                 -i - \\
+                -faidx {input.genome} \\
                 > {output.bed}; }} \\
         1> {log} 2>&1
         """

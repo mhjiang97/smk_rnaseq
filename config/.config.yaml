@@ -1,6 +1,7 @@
 quantification: true
 quantification_te: false
 mutation: true
+fusion: true
 
 dir_run: /projects/project_xxx/analysis/rnaseq
 dir_data: /projects/project_xxx/data/rnaseq
@@ -13,6 +14,9 @@ quantifier_te: featurecounts
 annotators:
   - vep
   - snpeff
+  - annovar
+callers_fusion:
+  - arriba
 
 species: homo_sapiens
 genome: GRCh38
@@ -59,6 +63,15 @@ min_reads: 3
 min_coverage: 10
 min_qual_base: 10
 min_qual_mapping: 20
+
+min_coverage_dna: 10
+min_qual_base_dna: 15
+min_qual_mapping_dna: 15
+max_mutants: 1
+
+rate_bias: 0.9
+rate_conflict: 0.5
+extend_transcript: 200
 
 suffixes_fastq:
   paired-end:

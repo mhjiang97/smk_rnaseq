@@ -1,5 +1,12 @@
 channels:
   - conda-forge
 dependencies:
-  - python>=3.13
+  - python=3.12
   - polars>=1.35
+  - pyranges>=0.1.4
+  - pyarrow>=23.0.1
+  - pandas>=3.0.1
+  - vcfpy>=0.14.2
+  - pip
+  - pip:
+    - genomicranges>=0.8.4

@@ -12,7 +12,6 @@ rule base_recalibrator:
             [f"--known-sites {site}" for site in config["polymorphism_known"]]
         ),
     resources:
-        mem_mb=1,
         tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     log:
         "logs/{sample}/base_recalibrator.log",
@@ -43,7 +42,6 @@ rule apply_bqsr:
             f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.splitn.recal.bam.bai"
         ),
     resources:
-        mem_mb=1,
         tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     log:
         "logs/{sample}/apply_bqsr.log",

@@ -11,8 +11,6 @@ rule snpeff_check:
         cache=config["cache_snpeff"],
         version=config["version_snpeff"],
         genome=config["genome"],
-    resources:
-        mem_mb=1,
     log:
         "logs/{sample}/{caller}.snpeff_update.log",
     shell:

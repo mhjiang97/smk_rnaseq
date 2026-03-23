@@ -1,22 +1,39 @@
+rule split_bed:
+    input:
+        bed=get_interval_bed(),
+    output:
+        scatter.split_bed("ref/beds/{scatteritem}.bed"),
+    run:
+        with open(input.bed) as f:
+            lines = [line for line in f if not line.startswith("#")]
+
+        chunk_size = (len(lines) + len(output) - 1) // len(output)
+
+        for i, out in enumerate(output):
+            with open(out, "w") as f:
+                f.writelines(lines[i * chunk_size : (i + 1) * chunk_size])
+
+
 rule mutect2:
     conda:
         "../../envs/gatk.yaml"
     input:
         unpack(get_mutect2_inputs),
+        bed="ref/beds/{scatteritem}.bed",
     output:
-        vcf="mutect2/{sample}/{sample}.raw.vcf",
-        f1r2="mutect2/{sample}/{sample}.f1r2.tar.gz",
+        vcf=temp("mutect2/{sample}/scatters/{scatteritem}.raw.vcf"),
+        f1r2=temp("mutect2/{sample}/scatters/{scatteritem}.f1r2.tar.gz"),
+        stats=temp("mutect2/{sample}/scatters/{scatteritem}.raw.vcf.stats"),
     params:
         min_coverage=config["min_coverage"],
         min_qual_base=config["min_qual_base"],
         arg_dna=get_mutect2_arguments,
         args=get_extra_arguments("mutect2"),
     log:
-        "logs/{sample}/mutect2.log",
+        "logs/{sample}/mutect2.{scatteritem}.log",
     threads: 1
     resources:
-        mem_mb=1,
-        tmpdir=lambda wildcards: f"mutect2/{wildcards.sample}",
+        tmpdir=lambda wildcards: f"mutect2/{wildcards.sample}/scatters",
     shell:
         """
         gatk Mutect2 \\
@@ -31,60 +48,10 @@ rule mutect2:
             --f1r2-tar-gz {output.f1r2} \\
             --callable-depth {params.min_coverage} \\
             --min-base-quality-score {params.min_qual_base} \\
-            --f1r2-min-bq 20 \\
+            --f1r2-min-bq {params.min_qual_base} \\
             --germline-resource {input.resource_germline} \\
             --panel-of-normals {input.pon} \\
             --dont-use-soft-clipped-bases true \\
             --tmp-dir {resources.tmpdir} \\
-            > {log} 2>&1
-        """
-
-
-rule filter_mutect_calls:
-    conda:
-        "../../envs/gatk.yaml"
-    input:
-        unpack(get_filter_mutect_calls_inputs),
-    output:
-        vcf=temp("mutect2/{sample}/{sample}.filtered.vcf"),
-    params:
-        arg_orientation=get_filter_mutect_calls_arguments,
-        args=get_extra_arguments("filter_mutect_calls"),
-    resources:
-        mem_mb=1,
-        tmpdir=lambda wildcards: f"mutect2/{wildcards.sample}",
-    log:
-        "logs/{sample}/filter_mutect_calls.log",
-    shell:
-        """
-        gatk FilterMutectCalls \\
-            {params.args} \\
-            --java-options "-Xmx{resources.mem_mb}M -XX:-UsePerfData" \\
-            --reference {input.fasta} \\
-            --variant {input.vcf} \\
-            --output {output.vcf} \\
-            --intervals {input.bed} \\
-            {params.arg_orientation} \\
-            --contamination-table {input.table_contamination} \\
-            --tumor-segmentation {input.table_segmentation} \\
-            --tmp-dir {resources.tmpdir} \\
-            > {log} 2>&1
-        """
-
-
-rule format_mutect2:
-    conda:
-        "../../envs/bcftools.yaml"
-    input:
-        vcf="mutect2/{sample}/{sample}.filtered.vcf",
-    output:
-        vcf=protected("mutect2/{sample}/{sample}.vcf"),
-    log:
-        "logs/{sample}/format_mutect2.log",
-    shell:
-        """
-        bcftools annotate \\
-            --set-id +'%CHROM\\_%POS\\_%REF\\_%FIRST_ALT' \\
-            {input.vcf} \\
-            1> {output.vcf} 2> {log}
+            1> {log} 2>&1
         """

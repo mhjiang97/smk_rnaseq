@@ -10,7 +10,6 @@ rule mark_duplicates:
         bai_renamed=protected(f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.bam.bai"),
         metrics=f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.metrics.txt",
     resources:
-        mem_mb=1,
         tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     log:
         "logs/{sample}/mark_duplicates.log",

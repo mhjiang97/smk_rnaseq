@@ -17,6 +17,10 @@ properties:
         dna_control_bam:
           type: string
           description: a bam file
+        strandedness:
+          type: string
+          description: Library strandedness, one of "fr-firststrand", "fr-secondstrand", or "unstranded". If omitted, auto-detected from salmon log.
+          enum: [fr-firststrand, fr-secondstrand, unstranded]
       required:
         - library_layout
       tangible:

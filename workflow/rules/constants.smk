@@ -35,6 +35,15 @@ ANNOTATOR2SUFFIX = {
 
 PROTOCOLS_UCSC = ["cytoBand"]
 
+SALMON_LIBTYPE_TO_STRANDEDNESS = {
+    "ISR": "fr-firststrand",
+    "SR": "fr-firststrand",
+    "ISF": "fr-secondstrand",
+    "SF": "fr-secondstrand",
+    "IU": "unstranded",
+    "U": "unstranded",
+}
+
 RULES = [
     "apply_bqsr",
     "base_recalibrator",

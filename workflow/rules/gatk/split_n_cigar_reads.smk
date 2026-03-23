@@ -12,7 +12,6 @@ rule split_n_cigar_reads:
             f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.splitn.bam.bai"
         ),
     resources:
-        mem_mb=1,
         tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     log:
         "logs/{sample}/split_n_cigar_reads.log",

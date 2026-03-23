@@ -1,6 +1,6 @@
 rule vep_check:
-    conda:
-        "../../envs/vep.yaml"
+    container:
+        "docker://ensemblorg/ensembl-vep:release_115.2"
     input:
         vcf="{caller}/{sample}/{sample}.vcf",
         fasta=config["fasta"],
