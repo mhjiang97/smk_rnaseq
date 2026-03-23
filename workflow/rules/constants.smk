@@ -44,6 +44,15 @@ SALMON_LIBTYPE_TO_STRANDEDNESS = {
     "U": "unstranded",
 }
 
+THRESHOLD_RSEQC = 0.75
+
+TAG_TO_STRANDEDNESS = {
+    "1++,1--,2+-,2-+": "fr-secondstrand",
+    "1+-,1-+,2++,2--": "fr-firststrand",
+    "++,--": "fr-secondstrand",
+    "+-,-+": "fr-firststrand",
+}
+
 RULES = [
     "apply_bqsr",
     "base_recalibrator",

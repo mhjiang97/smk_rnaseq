@@ -7,9 +7,7 @@ rule gather_vcfs:
     output:
         vcf="mutect2/{sample}/{sample}.raw.vcf",
     params:
-        inputs=lambda wildcards, input: " ".join(
-            f"--INPUT {vcf}" for vcf in input.vcfs
-        ),
+        inputs=lambda wildcards, input: " ".join(f"--INPUT {vcf}" for vcf in input.vcfs),
     log:
         "logs/{sample}/gather_vcfs.log",
     resources:

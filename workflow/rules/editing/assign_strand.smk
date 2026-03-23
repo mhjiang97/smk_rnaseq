@@ -25,6 +25,7 @@ rule assign_strand:
         vcf="{caller}/{sample}/{sample}.snvs.vcf",
         pickle=f"{config['gtf']}.pkl",
         log="salmon/{sample}/logs/salmon_quant.log",
+        txt="rseqc/{sample}/infer_experiment.txt",
     output:
         tsv="{caller}/{sample}/{sample}.snv_strandedness.tsv",
     params:

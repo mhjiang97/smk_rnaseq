@@ -3,7 +3,7 @@ rule get_pileup_summaries:
         "../../envs/gatk.yaml"
     input:
         bam=f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.splitn.recal.bam",
-        bed="ref/beds/{scatteritem}.bed",
+        bed="ref/interval/{scatteritem}.bed",
         fasta=config["fasta"],
         resource_germline=config["resource_germline"],
     output:
@@ -37,7 +37,7 @@ rule get_pileup_summaries_dna:
         "../../envs/gatk.yaml"
     input:
         bam=get_dna_control_bam,
-        bed="ref/beds/{scatteritem}.bed",
+        bed="ref/interval/{scatteritem}.bed",
         fasta=config["fasta"],
         resource_germline=config["resource_germline"],
     output:

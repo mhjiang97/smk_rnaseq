@@ -2,7 +2,7 @@ rule split_bed:
     input:
         bed=get_interval_bed(),
     output:
-        scatter.split_bed("ref/beds/{scatteritem}.bed"),
+        scatter.split_bed("ref/interval/{scatteritem}.bed"),
     run:
         with open(input.bed) as f:
             lines = [line for line in f if not line.startswith("#")]
@@ -19,7 +19,7 @@ rule mutect2:
         "../../envs/gatk.yaml"
     input:
         unpack(get_mutect2_inputs),
-        bed="ref/beds/{scatteritem}.bed",
+        bed="ref/interval/{scatteritem}.bed",
     output:
         vcf=temp("mutect2/{sample}/scatters/{scatteritem}.raw.vcf"),
         f1r2=temp("mutect2/{sample}/scatters/{scatteritem}.f1r2.tar.gz"),

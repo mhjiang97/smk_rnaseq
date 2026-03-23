@@ -249,9 +249,7 @@ def get_library_layout(wildcards):
     layout = DF_SAMPLE["library_layout"][sample]
 
     if layout not in ["paired-end", "single-end"]:
-        raise ValueError(
-            f"Unexpected library layout '{layout}' for sample '{sample}'."
-        )
+        raise ValueError(f"Unexpected library layout '{layout}' for sample '{sample}'.")
 
     return layout
 
@@ -269,9 +267,9 @@ def determine_strandedness(wildcards):
     """Determine library strandedness for a sample.
 
     First checks for a 'strandedness' column in the sample table. If absent or
-    empty, parses the Salmon quantification log to auto-detect the library type
-    from a line like:
-        [2026-03-08 23:27:57.219] [jointLog] [info] Automatically detected most likely library type as IU
+    empty, parses the Salmon quantification log to auto-detect the library type.
+    Then cross-checks the result against RSeQC infer_experiment.py output and
+    raises an error if they disagree.
 
     Returns:
         str: One of "fr-firststrand", "fr-secondstrand", or "unstranded".
@@ -283,14 +281,31 @@ def determine_strandedness(wildcards):
         if val and str(val).strip():
             return str(val).strip()
 
-    # salmon_log = f"logs/{sample}/salmon.log"
     salmon_log = checkpoints.salmon.get(sample=sample).output[0]
-    if not Path(salmon_log).exists():
+    rseqc_txt = checkpoints.infer_experiment.get(sample=sample).output[0]
+    if not Path(salmon_log).exists() and not Path(rseqc_txt).exists():
         raise FileNotFoundError(
             f"Cannot determine strandedness for sample '{sample}': "
-            f"no 'strandedness' column in sample table and salmon log '{salmon_log}' not found."
+            f"no 'strandedness' column in sample table and neither salmon log '{salmon_log}' nor RSeQC infer_experiment output '{rseqc_txt}' found."
         )
 
+    salmon_result = _parse_salmon_strandedness(salmon_log, sample)
+    rseqc_result = _parse_rseqc_strandedness(rseqc_txt, sample)
+
+    if salmon_result != rseqc_result:
+        raise ValueError(
+            f"Strandedness mismatch for sample '{sample}': "
+            f"Salmon detected '{salmon_result}' but RSeQC infer_experiment.py detected '{rseqc_result}'. "
+            f"Please set 'strandedness' explicitly in the sample table to resolve this conflict."
+        )
+
+    DF_SAMPLE_COPY.at[sample, "strandedness"] = salmon_result
+
+    return salmon_result
+
+
+def _parse_salmon_strandedness(salmon_log, sample):
+    """Parse Salmon log to determine library strandedness."""
     pattern = re.compile(r"Automatically detected most likely library type as (\S+)")
     with open(salmon_log) as f:
         for line in f:
@@ -303,15 +318,53 @@ def determine_strandedness(wildcards):
                         f"Unknown Salmon library type '{libtype}' for sample '{sample}'. "
                         f"Expected one of: {', '.join(SALMON_LIBTYPE_TO_STRANDEDNESS)}."
                     )
-
-                DF_SAMPLE_COPY.at[sample, "strandedness"] = result
-
                 return result
 
     raise ValueError(
         f"Cannot determine strandedness for sample '{sample}': "
         f"no library type detected in salmon log '{salmon_log}'."
     )
+
+
+def _parse_rseqc_strandedness(rseqc_txt, sample):
+    """Parse RSeQC infer_experiment.py output to determine library strandedness.
+
+    Paired-end output contains lines like:
+        Fraction of reads explained by "1++,1--,2+-,2-+": 0.4903
+        Fraction of reads explained by "1+-,1-+,2++,2--": 0.4925
+
+    Single-end output contains lines like:
+        Fraction of reads explained by "++,--": 0.4903
+        Fraction of reads explained by "+-,-+": 0.4925
+    """
+    pattern = re.compile(r'Fraction of reads explained by "(.+?)":\s+([\d.]+)')
+    fractions = {}
+
+    with open(rseqc_txt) as f:
+        for line in f:
+            m = pattern.search(line)
+            if m:
+                fractions[m.group(1)] = float(m.group(2))
+
+    if not fractions:
+        raise ValueError(
+            f"Cannot parse RSeQC infer_experiment.py output for sample '{sample}': "
+            f"no fraction lines found in '{rseqc_txt}'."
+        )
+
+    dominant_tag = max(fractions, key=fractions.get)
+    dominant_frac = fractions[dominant_tag]
+
+    if dominant_frac < THRESHOLD_RSEQC:
+        return "unstranded"
+
+    result = TAG_TO_STRANDEDNESS.get(dominant_tag)
+    if result is None:
+        raise ValueError(
+            f"Unexpected RSeQC tag '{dominant_tag}' for sample '{sample}'."
+        )
+
+    return result
 
 
 def get_extra_arguments(rule_name):
