@@ -306,6 +306,12 @@ The sample table must include these mandatory columns:
 
 Another validation schema (`workflow/schemas/pep.schema.yaml`) ensures that the sample table meets the required format.
 
+## Workflow Details
+
+### Scatter-Gather Parallelization (Mutect2)
+
+When using Mutect2, the workflow splits the interval BED file into multiple chunks and runs variant calling on each chunk in parallel. The scattered results (VCFs, stats, and pileup summaries) are then gathered and merged before filtering. The number of chunks is controlled by `set-scatter: split_bed` in the execution profile (default: 8).
+
 ## Execution
 
 ```shell

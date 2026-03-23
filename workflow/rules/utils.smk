@@ -104,9 +104,7 @@ def validate_vep_container_version(config, rule_file):
     with open(rule_file, "r") as f:
         text = f.read()
 
-    pattern = re.compile(
-        r'docker://ensemblorg/ensembl-vep:release_(\d+(?:\.\d+)?)'
-    )
+    pattern = re.compile(r"docker://ensemblorg/ensembl-vep:release_(\d+(?:\.\d+)?)")
     match = pattern.search(text)
     if match is None:
         logger.warning(
@@ -159,7 +157,9 @@ def validate_extra_arguments(config):
                 raise ValueError()
 
 
-def perform_validations_with_rich(config, vep_env_path, file_params, vep_rule_path=None):
+def perform_validations_with_rich(
+    config, vep_env_path, file_params, vep_rule_path=None
+):
     root = logging.getLogger()
     old_level = root.level
     old_handlers = root.handlers.copy()
@@ -249,7 +249,9 @@ def get_library_layout(wildcards):
     layout = DF_SAMPLE["library_layout"][sample]
 
     if layout not in ["paired-end", "single-end"]:
-        raise ValueError(f"Unexpected library layout '{layout}' for sample '{sample}'.")
+        raise ValueError(
+            f"Unexpected library layout '{layout}' for sample '{sample}'."
+        )
 
     return layout
 

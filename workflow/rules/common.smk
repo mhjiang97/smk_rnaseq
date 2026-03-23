@@ -96,15 +96,15 @@ dict_fasta = Path(config["fasta"]).with_suffix(".dict").as_posix()
 fai_fasta = f"{config['fasta']}.fai"
 bed_transcript = Path(config["gtf"]).with_suffix(".transcript.bed").as_posix()
 bed_transcript_slopped = (
-    Path(bed_transcript).with_suffix(f".slopped_{config['slop_transcript']}.bed").as_posix()
+    Path(bed_transcript)
+    .with_suffix(f".slopped_{config['slop_transcript']}.bed")
+    .as_posix()
 )
 
 path_cache_snpeff = (
     f"{config['cache_snpeff']}/{config['genome']}.{config['version_snpeff']}"
 )
-path_cache_vep = (
-    f"{config['cache_vep']}/{config['species']}/{config['version_vep']}_{config['genome']}"
-)
+path_cache_vep = f"{config['cache_vep']}/{config['species']}/{config['version_vep']}_{config['genome']}"
 
 
 # *--------------------------------------------------------------------------* #

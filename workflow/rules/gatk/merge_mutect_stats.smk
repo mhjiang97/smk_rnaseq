@@ -6,7 +6,9 @@ rule merge_mutect_stats:
     output:
         stats="mutect2/{sample}/{sample}.raw.vcf.stats",
     params:
-        inputs=lambda wildcards, input: " ".join(f"--stats {stats}" for stats in input),
+        inputs=lambda wildcards, input: " ".join(
+            f"--stats {stats}" for stats in input
+        ),
     log:
         "logs/{sample}/merge_mutect_stats.log",
     resources:
