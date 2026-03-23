@@ -37,13 +37,14 @@ project/
 ## Prerequisites
 
 - [**Python**](https://www.python.org)
-- [**Snakemake**](https://snakemake.github.io) (tested on 9.8.0)
+- [**Snakemake**](https://snakemake.github.io) (>=9.0.0)
 - [**eido**](https://pep.databio.org/eido/)
 - [**SAMtools**](https://www.htslib.org)
 - [**Mamba**](https://mamba.readthedocs.io/en/latest/) (recommended) or [**conda**](https://docs.conda.io/projects/conda/en/stable/)
+- [**Apptainer**](https://apptainer.org/) (required for VEP, bam-readcount, and Arriba)
 - [**Pysam**](https://github.com/pysam-developers/pysam)
 
-Additional dependencies are automatically installed by **Mamba** or **conda**. Environments are defined in yaml files under `workflow/envs/`.
+Additional dependencies are automatically installed by **Mamba** or **conda**, or pulled as containers via **Apptainer**. Environments are defined in yaml files under `workflow/envs/`.
 
 - [**BCFtools**](http://samtools.github.io/bcftools/)
 - [**GATK**](https://gatk.broadinstitute.org/hc/en-us)
@@ -53,7 +54,11 @@ Additional dependencies are automatically installed by **Mamba** or **conda**. E
 - [**SnpSift**](https://pcingola.github.io/)
 - [**STAR**](https://github.com/alexdobin/STAR)
 - [**vcf2maf**](https://github.com/mskcc/vcf2maf)
-- [**VEP**](https://www.ensembl.org/info/docs/tools/vep/index.html)
+- [**VEP**](https://www.ensembl.org/info/docs/tools/vep/index.html) (via Apptainer container)
+- [**ANNOVAR**](https://annovar.openbioinformatics.org/)
+- [**Arriba**](https://arriba.readthedocs.io/) (via Apptainer container)
+- [**bam-readcount**](https://github.com/genome/bam-readcount) (via Apptainer container)
+- [**BEDOPS**](https://bedops.readthedocs.io/)
 - [**FastQC**](https://www.bioinformatics.babraham.ac.uk/projects/fastqc/)
 - [**MultiQC**](https://multiqc.info/)
 
@@ -110,6 +115,7 @@ cp workflow/profiles/default/.config.yaml workflow/profiles/default/config.yaml
 quantification: true                                                                                # Whether to perform quantification (Default: true)
 quantification_te: false                                                                            # Whether to perform transposable element quantification (Default: false)
 mutation: true                                                                                      # Whether to perform mutation calling (Default: true)
+fusion: true                                                                                        # Whether to perform fusion calling (Default: true)
 
 dir_run: /projects/project_xxx/analysis/rnaseq                                                      # Output directory (Optional)
 dir_data: /projects/project_xxx/data/rnaseq                                                         # Directory for raw FASTQ files (Required)
@@ -118,9 +124,12 @@ mapper: star                                                                    
 callers:                                                                                            # Mutation calling tools (Default: ["haplotypecaller"])
   - haplotypecaller
 quantifier: salmon                                                                                  # Quantification tool (Default: "salmon")
-annotators:                                                                                         # Variant annotation tools (Defaults: ["vep", "snpeff"])
+annotators:                                                                                         # Variant annotation tools (Defaults: ["vep", "snpeff", "annovar"])
   - vep
   - snpeff
+  - annovar
+callers_fusion:                                                                                     # Fusion calling tools (Default: ["arriba"])
+  - arriba
 
 species: homo_sapiens                                                                               # Species (Default: "homo_sapiens")
 genome: GRCh38                                                                                      # Genome assembly (Default: "GRCh38")
@@ -146,12 +155,31 @@ resource_germline: /doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/af-only-gn
 check_annotations: false                                                                            # Whether to check VCF files annotated by VEP and SnpEff by counting lines (Default: false)
 cache_vep: /.vep                                                                                    # Cache directory for VEP
 cache_snpeff: /doc/tool/annotator/snpeff                                                            # Cache directory for SnpEff
-version_vep: 114                                                                                    # VEP cache version (Default: 114)
+cache_annovar: /doc/tool/annotator/annovar                                                          # Cache directory for ANNOVAR
+version_vep: 115                                                                                    # VEP cache version (Default: 114)
 version_snpeff: "105"                                                                               # SnpEff cache version (Default: "105")
+protocols:                                                                                          # ANNOVAR annotation protocols
+  filter:
+    ["avsnp151", "clinvar_20250721", "cosmic102", "dbnsfp42c", "dbscsnv11",
+     "exac03", "gnomad41_exome", "gnomad41_genome", "icgc28", "intervar_20250721"]
+  region:
+    ["cytoBand"]
+  gene:
+    ["refGene"]
 
 min_reads: 3                                                                                        # Minimum number of supporting reads (Default: 3)
 min_coverage: 10                                                                                    # Minimum coverage required for a mutation site to be considered (Default: 10)
-min_qual_mapping: 20
+min_qual_base: 10                                                                                   # Minimum base quality (Default: 10)
+min_qual_mapping: 20                                                                                # Minimum mapping quality (Default: 20)
+
+min_coverage_dna: 10                                                                                # Minimum coverage for DNA control BAM (Default: 10)
+min_qual_base_dna: 15                                                                               # Minimum base quality for DNA reads (Default: 15)
+min_qual_mapping_dna: 15                                                                            # Minimum mapping quality for DNA reads (Default: 15)
+max_mutants: 1                                                                                      # Maximum number of mutant alleles allowed in DNA control (Default: 1)
+
+rate_bias: 0.9                                                                                      # Strand bias rate threshold for RNA editing detection (Default: 0.9)
+rate_conflict: 0.5                                                                                  # Conflict rate threshold for strand assignment (Default: 0.5)
+extend_transcript: 200                                                                              # Bases to extend transcript regions for strand assignment (Default: 100)
 
 suffixes_fastq:                                                                                     # Suffixes for FASTQ files (Defaults: {paired-end: ["_R1.fq.gz", "_R2.fq.gz"], single-end: ".fq.gz"})
   paired-end:
@@ -182,9 +210,10 @@ All default values are defined in the validation schema (`workflow/schemas/confi
 ```yaml
 software-deployment-method:
   - conda
+  - apptainer
 conda-prefix: /.snakemake/envs/smk_rnaseq
-scheduler: greedy
-rerun-trigger: mtime
+apptainer-args: "--bind /storage,/home/user"
+apptainer-prefix: /.snakemake/singularity
 printshellcmds: True
 keep-incomplete: True
 cores: 80
@@ -192,6 +221,8 @@ resources:
   mem_mb: 500000  # 500GB
 default-resources:
   mem_mb: 5000  # 5GB
+set-scatter:
+  split_bed: 8
 set-threads:
   salmon: 4
   salmon_index: 10
@@ -201,14 +232,13 @@ set-threads:
   haplotypecaller: 10
   mutect2: 10
   vep: 10
+  annovar: 10
   fastp_paired_end: 4
   fastp_single_end: 4
   fastqc: 4
 set-resources:
   salmon:
     mem_mb: 20000 # 20GB
-  star:
-    mem_mb: 100000  # 100GB
   mark_duplicates:
     mem_mb: 50000  # 50GB
   split_n_cigar_reads:
@@ -223,9 +253,11 @@ set-resources:
     mem_mb: 10000  # 10GB
   learn_read_orientation_model:
     mem_mb: 10000  # 10GB
-  get_pileup_summaries:
+  gather_vcfs:
     mem_mb: 10000  # 10GB
-  get_pileup_summaries_dna:
+  merge_mutect_stats:
+    mem_mb: 10000  # 10GB
+  gather_pileup_summaries:
     mem_mb: 10000  # 10GB
   calculate_contamination:
     mem_mb: 10000  # 10GB
@@ -233,6 +265,8 @@ set-resources:
     mem_mb: 10000  # 10GB
   snpeff:
     mem_mb: 20000  # 20GB
+  vcf2bed:
+    mem_mb: 10000  # 10GB
 ```
 
 </details>
@@ -258,13 +292,13 @@ The sample table must include these mandatory columns:
 | --------------------------------- | ------------------------------------------------------ |
 | Unique identifier for each sample | Sequencing strategy (`"paired-end"` or `"single-end"`) |
 
-#### Optional DNA Control Columns
+#### Optional Columns
 
-For RNA only mutation calling with DNA as control, add these columns:
-
-| **dna_sample_name**            | **dna_control_bam**            |
-| ------------------------------ | ------------------------------ |
-| Identifier for the matched BAM | Path to processed DNA BAM file |
+| Column              | Description                                                                                                                 |
+| ------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| **dna_sample_name** | Identifier for the matched DNA BAM (should match @RG SM in the DNA BAM)                                                     |
+| **dna_control_bam** | Path to processed DNA BAM file                                                                                              |
+| **strandedness**    | Library strandedness: `"fr-firststrand"`, `"fr-secondstrand"`, or `"unstranded"`. If omitted, auto-detected from Salmon log |
 
 - If dna_sample_name is provided, it should match one of the @RG SM values in the DNA BAM.
 - The DNA control must represent a different sample than the RNA sample. The BAM header @RG SM of dna_control_bam must NOT equal the RNA sample_name.
@@ -321,6 +355,17 @@ By default, all results are written to the directory you specify as *dir_run* (o
   - Annotated variants:
     - SnpEff: `{sample}/{sample}.[snvs/indels].snpeff.[vcf/tsv]`
     - VEP: `{sample}/{sample}.[snvs/indels].vep.[vcf/maf]`
+    - ANNOVAR: `{sample}/{sample}.[snvs/indels].annovar.tsv`
+
+- **arriba/**
+  - Fusion calls: `{sample}/fusions.tsv`
+  - Discarded fusion candidates: `{sample}/fusions.discarded.tsv`
+
+- **RNA editing analysis** (requires DNA control)
+  - Variant positions in BED format: `{caller}/{sample}/{sample}.snvs.bed`
+  - DNA read counts at variant sites: `bam-readcount/{sample_dna}-dna/{sample}-{caller}-rna_snvs.tsv`
+  - Filtered RNA editing candidates: `{caller}/{sample}/{sample}-{sample_dna}-rna_editing.bed`
+  - Strand assignment: `{caller}/{sample}/{sample}.snv_strandedness.tsv`
 
 </details>
 
