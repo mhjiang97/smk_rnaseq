@@ -76,16 +76,17 @@ if ! command -v mamba &> /dev/null; then
 fi
 
 if ! command -v samtools &> /dev/null; then
-    [ -d ${HOME}/.local/opt ] || mkdir -p ${HOME}/.local/opt
-    wget 'https://github.com/samtools/samtools/releases/download/1.22.1/samtools-1.22.1.tar.bz2'
-    tar -xvf samtools-1.22.1.tar.bz2
-    cd samtools-1.22.1
-    ./configure --prefix=${HOME}/.local/opt/samtools
+    version="$(curl -fsSL "https://api.github.com/repos/samtools/samtools/releases/latest" | sed -nE 's/.*"tag_name":[[:space:]]*"v?([^"]+)".*/\1/p' | head -n 1)"
+    [ -d "${HOME}/local" ] || mkdir -p "${HOME}/local"
+    wget "https://github.com/samtools/samtools/releases/download/${version}/samtools-${version}.tar.bz2"
+    tar -xvf "samtools-${version}.tar.bz2"
+    cd "samtools-${version}"
+    ./configure --prefix="${HOME}/local"
     make
     make install
-    echo "export PATH=\${HOME}/.local/opt/samtools/bin:\${PATH}" >> ~/.bashrc
+    echo "export PATH=\${HOME}/local/bin:\${PATH}" >> ~/.bashrc
     source ~/.bashrc
-    rm -rf samtools-1.22.1 samtools-1.22.1.tar.bz2
+    rm -rf "samtools-${version}" "samtools-${version}.tar.bz2"
 fi
 
 # Install Snakemake, eido, pysam using pipx (https://pipx.pypa.io/stable/)
