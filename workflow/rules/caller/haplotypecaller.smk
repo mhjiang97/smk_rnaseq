@@ -1,6 +1,4 @@
 rule haplotypecaller:
-    conda:
-        "../../envs/gatk4.1.yaml"
     input:
         bam=f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.splitn.recal.bam",
         bed=get_interval_bed(),
@@ -9,13 +7,15 @@ rule haplotypecaller:
     output:
         vcf=temp("haplotypecaller/{sample}/tmp.vcf"),
         index=temp("haplotypecaller/{sample}/tmp.vcf.idx"),
-    params:
-        args=get_extra_arguments("haplotypecaller"),
     log:
         "logs/{sample}/haplotypecaller.log",
+    conda:
+        "../../envs/gatk4.1.yaml"
     threads: 1
     resources:
         tmpdir=lambda wildcards: f"haplotypecaller/{wildcards.sample}",
+    params:
+        args=get_extra_arguments("haplotypecaller"),
     shell:
         """
         gatk HaplotypeCaller \\
@@ -36,14 +36,14 @@ rule haplotypecaller:
 
 
 rule format_haplotypecaller:
-    conda:
-        "../../envs/bcftools.yaml"
     input:
         vcf="haplotypecaller/{sample}/tmp.vcf",
     output:
         vcf=protected("haplotypecaller/{sample}/{sample}.vcf"),
     log:
         "logs/{sample}/format_haplotypecaller.log",
+    conda:
+        "../../envs/bcftools.yaml"
     shell:
         """
         bcftools annotate \\

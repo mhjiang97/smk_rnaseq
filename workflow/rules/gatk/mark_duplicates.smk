@@ -1,6 +1,4 @@
 rule mark_duplicates:
-    conda:
-        "../../envs/gatk.yaml"
     input:
         bam=f"{MAPPER}/{{sample}}/{{sample}}.sorted.bam",
         fasta=config["fasta"],
@@ -9,10 +7,12 @@ rule mark_duplicates:
         bai=temp(f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.bai"),
         bai_renamed=protected(f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.bam.bai"),
         metrics=f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.metrics.txt",
-    resources:
-        tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     log:
         "logs/{sample}/mark_duplicates.log",
+    conda:
+        "../../envs/gatk.yaml"
+    resources:
+        tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     shell:
         """
         {{ gatk MarkDuplicates \\

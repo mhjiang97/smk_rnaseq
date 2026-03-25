@@ -1,17 +1,17 @@
 rule filter_mutect_calls:
-    conda:
-        "../../envs/gatk.yaml"
     input:
         unpack(get_filter_mutect_calls_inputs),
     output:
         vcf=temp("mutect2/{sample}/{sample}.filtered.vcf"),
+    log:
+        "logs/{sample}/filter_mutect_calls.log",
+    conda:
+        "../../envs/gatk.yaml"
+    resources:
+        tmpdir=lambda wildcards: f"mutect2/{wildcards.sample}",
     params:
         arg_orientation=get_filter_mutect_calls_arguments,
         args=get_extra_arguments("filter_mutect_calls"),
-    resources:
-        tmpdir=lambda wildcards: f"mutect2/{wildcards.sample}",
-    log:
-        "logs/{sample}/filter_mutect_calls.log",
     shell:
         """
         gatk FilterMutectCalls \\
@@ -31,14 +31,14 @@ rule filter_mutect_calls:
 
 
 rule format_mutect2:
-    conda:
-        "../../envs/bcftools.yaml"
     input:
         vcf="mutect2/{sample}/{sample}.filtered.vcf",
     output:
         vcf=protected("mutect2/{sample}/{sample}.vcf"),
     log:
         "logs/{sample}/format_mutect2.log",
+    conda:
+        "../../envs/bcftools.yaml"
     shell:
         """
         bcftools annotate \\

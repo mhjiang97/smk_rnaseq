@@ -1,15 +1,15 @@
 rule vcf2bed:
-    conda:
-        "../../envs/bedops.yaml"
     input:
         vcf="{caller}/{sample}/{sample}.snvs.vcf",
     output:
         bed="{caller}/{sample}/{sample}.snvs.bed",
         tsv="{caller}/{sample}/{sample}.snvs.tsv",
-    params:
-        _dir="{caller}/{sample}",
     log:
         "logs/{sample}/vcf2bed.{caller}.log",
+    conda:
+        "../../envs/bedops.yaml"
+    params:
+        _dir="{caller}/{sample}",
     shell:
         """
         {{ vcf2bed \\

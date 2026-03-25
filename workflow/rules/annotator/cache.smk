@@ -1,13 +1,13 @@
 rule download_snpeff_cache:
-    conda:
-        "../../envs/awscli.yaml"
     output:
         dir=directory(path_cache_snpeff),
+    log:
+        "logs/download_snpeff_cache.log",
+    conda:
+        "../../envs/awscli.yaml"
     params:
         dir_src=f"{config['genome']}.{config['version_snpeff']}",
         dir_trgt=config["cache_snpeff"],
-    log:
-        "logs/download_snpeff_cache.log",
     shell:
         """
         {{ url_base="s3://annotation-cache/snpeff_cache"
@@ -23,10 +23,12 @@ rule download_snpeff_cache:
 
 
 rule download_vep_cache:
-    conda:
-        "../../envs/awscli.yaml"
     output:
         dir=directory(path_cache_vep),
+    log:
+        "logs/download_vep_cache.log",
+    conda:
+        "../../envs/awscli.yaml"
     params:
         dir_src=f"{config['version_vep']}_{config['genome']}",
         dir_trgt=f"{config['cache_vep']}/{config['species']}",
@@ -34,8 +36,6 @@ rule download_vep_cache:
         species=config["species"],
         version=config["version_vep"],
         genome=config["genome"],
-    log:
-        "logs/download_vep_cache.log",
     shell:
         """
         {{ url_base="s3://annotation-cache/vep_cache"
@@ -81,6 +81,8 @@ rule download_annovar_cache:
         txt=ancient(f"{config['cache_annovar']}/{GENOME2}_avdblist.txt"),
     output:
         txt=f"{config['cache_annovar']}/{GENOME2}_{{protocol}}.txt",
+    log:
+        "logs/download_annovar_cache.{protocol}.log",
     params:
         dir=config["cache_annovar"],
         file=f"{GENOME2}_{{protocol}}.txt.gz",
@@ -89,8 +91,6 @@ rule download_annovar_cache:
         arg_webfrom=lambda wildcards: (
             f"--webfrom annovar" if wildcards.protocol not in PROTOCOLS_UCSC else ""
         ),
-    log:
-        "logs/download_annovar_cache.{protocol}.log",
     run:
         from pathlib import Path
 
@@ -106,8 +106,7 @@ rule download_annovar_cache:
         if Path(output.txt).stat().st_size > 0:
             return None
 
-        shell(
-            """
+        shell("""
             annotate_variation.pl \\
                 --buildver {params.genome} \\
                 --downdb \\
@@ -115,5 +114,4 @@ rule download_annovar_cache:
                 {wildcards.protocol} \\
                 {params.dir} \\
                 1> {log} 2>&1
-            """
-        )
+            """)

@@ -1,16 +1,16 @@
 rule merge_mutect_stats:
-    conda:
-        "../../envs/gatk.yaml"
     input:
         gather.split_bed("mutect2/{{sample}}/scatters/{scatteritem}.raw.vcf.stats"),
     output:
         stats="mutect2/{sample}/{sample}.raw.vcf.stats",
-    params:
-        inputs=lambda wildcards, input: " ".join(f"--stats {stats}" for stats in input),
     log:
         "logs/{sample}/merge_mutect_stats.log",
+    conda:
+        "../../envs/gatk.yaml"
     resources:
         tmpdir=lambda wildcards: f"mutect2/{wildcards.sample}",
+    params:
+        inputs=lambda wildcards, input: " ".join(f"--stats {stats}" for stats in input),
     shell:
         """
         gatk MergeMutectStats \\

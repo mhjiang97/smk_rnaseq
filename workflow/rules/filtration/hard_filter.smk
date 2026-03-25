@@ -1,6 +1,4 @@
 rule hard_filter:
-    conda:
-        "../../envs/bcftools.yaml"
     input:
         vcf="{caller}/{sample}/{sample}.vcf",
     output:
@@ -8,11 +6,13 @@ rule hard_filter:
         indels="{caller}/{sample}/{sample}.indels.vcf",
         ids_snv=temp("{caller}/{sample}/{sample}.snvs.ids"),
         ids_indel=temp("{caller}/{sample}/{sample}.indels.ids"),
+    log:
+        "logs/{sample}/hard_filter.{caller}.log",
+    conda:
+        "../../envs/bcftools.yaml"
     params:
         formula_snv=get_snv_filters,
         formula_indel=get_indel_filters,
-    log:
-        "logs/{sample}/hard_filter.{caller}.log",
     shell:
         """
         {{ grep -E "^#|^chr" {input.vcf} \\

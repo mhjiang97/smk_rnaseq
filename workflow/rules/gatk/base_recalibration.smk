@@ -1,20 +1,20 @@
 rule base_recalibrator:
-    conda:
-        "../../envs/gatk.yaml"
     input:
         config["polymorphism_known"],
         bam=f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.splitn.bam",
         fasta=config["fasta"],
     output:
         table=protected(f"{MAPPER}/{{sample}}/{{sample}}.recal.table"),
+    log:
+        "logs/{sample}/base_recalibrator.log",
+    conda:
+        "../../envs/gatk.yaml"
+    resources:
+        tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     params:
         arg_known_sites=" ".join(
             [f"--known-sites {site}" for site in config["polymorphism_known"]]
         ),
-    resources:
-        tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
-    log:
-        "logs/{sample}/base_recalibrator.log",
     shell:
         """
         gatk BaseRecalibrator \\
@@ -29,8 +29,6 @@ rule base_recalibrator:
 
 
 rule apply_bqsr:
-    conda:
-        "../../envs/gatk.yaml"
     input:
         bam=f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.splitn.bam",
         table=f"{MAPPER}/{{sample}}/{{sample}}.recal.table",
@@ -41,10 +39,12 @@ rule apply_bqsr:
         bai_renamed=protected(
             f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.splitn.recal.bam.bai"
         ),
-    resources:
-        tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     log:
         "logs/{sample}/apply_bqsr.log",
+    conda:
+        "../../envs/gatk.yaml"
+    resources:
+        tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     shell:
         """
         {{ gatk ApplyBQSR \\

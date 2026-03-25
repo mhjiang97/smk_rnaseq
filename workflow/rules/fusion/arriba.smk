@@ -1,6 +1,4 @@
 rule arriba:
-    container:
-        "docker://uhrigs/arriba:2.5.1"
     input:
         unpack(get_fastq_files),
         fasta=config["fasta"],
@@ -9,15 +7,17 @@ rule arriba:
     output:
         fusion="arriba/{sample}/fusions.tsv",
         fusion_discarded="arriba/{sample}/fusions.discarded.tsv",
+    log:
+        "logs/{sample}/arriba.log",
+    container:
+        "docker://uhrigs/arriba:2.5.1"
+    threads: 1
+    resources:
+        mem_mb=lambda wildcards, attempt: get_star_mem_mb(wildcards, attempt),
     params:
         layout=get_library_layout,
         genome=config["genome"],
         index=config["index_star"],
         dir_tmp="arriba/{sample}/tmp",
-    threads: 1
-    resources:
-        mem_mb=lambda wildcards, attempt: get_star_mem_mb(wildcards, attempt),
-    log:
-        "logs/{sample}/arriba.log",
     script:
         "../../scripts/arriba.sh"

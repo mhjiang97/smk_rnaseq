@@ -1,17 +1,17 @@
 rule star_index:
-    conda:
-        "../../envs/star.yaml"
     input:
         gtf=config["gtf"],
         fasta=config["fasta"],
-    params:
-        args=get_extra_arguments("star_index"),
     output:
         dir=protected(directory(config["index_star"])),
         index_sa=f"{config['index_star']}/SA",
-    threads: 1
     log:
         "logs/star_index.log",
+    conda:
+        "../../envs/star.yaml"
+    threads: 1
+    params:
+        args=get_extra_arguments("star_index"),
     shell:
         """
         STAR \\
@@ -26,8 +26,6 @@ rule star_index:
 
 
 rule star:
-    conda:
-        "../../envs/star.yaml"
     input:
         unpack(get_fastq_files),
         gtf=config["gtf"],
@@ -38,15 +36,17 @@ rule star:
         sj=protected("star/{sample}/SJ.out.tab"),
         bam_renamed="star/{sample}/{sample}.sorted.bam",
         bai_renamed="star/{sample}/{sample}.sorted.bam.bai",
-    params:
-        index=config["index_star"],
-        layout=get_library_layout,
-        args=get_extra_arguments("star"),
+    log:
+        "logs/{sample}/star.log",
+    conda:
+        "../../envs/star.yaml"
     threads: 1
     resources:
         mem_mb=lambda wildcards, attempt: get_star_mem_mb(wildcards, attempt),
         mem_mb_sort=lambda wildcards, attempt: get_star_sort_mem_mb(wildcards, attempt),
-    log:
-        "logs/{sample}/star.log",
+    params:
+        index=config["index_star"],
+        layout=get_library_layout,
+        args=get_extra_arguments("star"),
     script:
         "../../scripts/star.sh"

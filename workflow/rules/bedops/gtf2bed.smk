@@ -1,14 +1,14 @@
 rule gtf2bed:
-    conda:
-        "../../envs/bedops.yaml"
     input:
         gtf=config["gtf"],
     output:
         bed=f"ref/bed/{Path(config['gtf']).stem}.bed",
-    params:
-        _dir="ref/bed",
     log:
         "logs/gtf2bed.log",
+    conda:
+        "../../envs/bedops.yaml"
+    params:
+        _dir="ref/bed",
     shell:
         """
         gtf2bed \\

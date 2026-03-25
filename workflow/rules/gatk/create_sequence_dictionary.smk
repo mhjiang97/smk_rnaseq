@@ -1,14 +1,14 @@
 rule create_sequence_dictionary:
-    conda:
-        "../../envs/gatk.yaml"
     input:
         fasta=config["fasta"],
     output:
         dict=dict_fasta,
-    params:
-        args=get_extra_arguments("create_sequence_dictionary"),
     log:
         "logs/create_fasta_dict.log",
+    conda:
+        "../../envs/gatk.yaml"
+    params:
+        args=get_extra_arguments("create_sequence_dictionary"),
     shell:
         """
         gatk CreateSequenceDictionary \\

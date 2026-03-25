@@ -1,6 +1,4 @@
 rule featurecounts_transposable_elements:
-    conda:
-        "../../envs/subread.yaml"
     input:
         bam=f"{MAPPER}/{{sample}}/{{sample}}.sorted.bam",
         gtf=config["gtf_te"],
@@ -8,11 +6,13 @@ rule featurecounts_transposable_elements:
         counts="featurecounts/{sample}/te.tsv",
         counts_unique_overlap="featurecounts/{sample}/te.unique.overlap.tsv",
         counts_unique="featurecounts/{sample}/te.unique.tsv",
-    params:
-        arg_count=get_featurecounts_arguments,
-    threads: 1
     log:
         "logs/{sample}/featurecounts_transposable_elements.log",
+    conda:
+        "../../envs/subread.yaml"
+    threads: 1
+    params:
+        arg_count=get_featurecounts_arguments,
     shell:
         """
         {{ featureCounts \\

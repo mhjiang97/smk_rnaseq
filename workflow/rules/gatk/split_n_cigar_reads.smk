@@ -1,6 +1,4 @@
 rule split_n_cigar_reads:
-    conda:
-        "../../envs/gatk.yaml"
     input:
         bam=f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.bam",
         fasta=config["fasta"],
@@ -11,10 +9,12 @@ rule split_n_cigar_reads:
         bai_renamed=protected(
             f"{MAPPER}/{{sample}}/{{sample}}.sorted.md.splitn.bam.bai"
         ),
-    resources:
-        tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     log:
         "logs/{sample}/split_n_cigar_reads.log",
+    conda:
+        "../../envs/gatk.yaml"
+    resources:
+        tmpdir=lambda wildcards: f"{MAPPER}/{wildcards.sample}",
     shell:
         """
         {{ gatk SplitNCigarReads \\

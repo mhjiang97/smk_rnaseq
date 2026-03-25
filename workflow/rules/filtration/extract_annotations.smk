@@ -1,6 +1,4 @@
 rule extract_annotations:
-    conda:
-        "../../envs/bcftools.yaml"
     input:
         ids_snv="{caller}/{sample}/{sample}.snvs.ids",
         ids_indel="{caller}/{sample}/{sample}.indels.ids",
@@ -8,11 +6,13 @@ rule extract_annotations:
     output:
         snvs_anno="{caller}/{sample}/{sample}.snvs.{annotator}.vcf",
         indels_anno="{caller}/{sample}/{sample}.indels.{annotator}.vcf",
+    log:
+        "logs/{sample}/extract_annotations.{caller}.{annotator}.log",
+    conda:
+        "../../envs/bcftools.yaml"
     params:
         min_reads=config["min_reads"],
         min_coverage=config["min_coverage"],
-    log:
-        "logs/{sample}/extract_annotations.{caller}.{annotator}.log",
     shell:
         """
         {{ bcftools filter -i 'ID=@{input.ids_snv}' {input.vcf_anno} > {output.snvs_anno}
@@ -22,8 +22,6 @@ rule extract_annotations:
 
 
 rule extract_annovar_annotations:
-    conda:
-        "../../envs/python.yaml"
     input:
         anno="{caller}/{sample}/{sample}.annovar.tsv",
         tmp="{caller}/{sample}/av.{sample}.avinput",
@@ -34,5 +32,7 @@ rule extract_annovar_annotations:
         anno_indel="{caller}/{sample}/{sample}.indels.annovar.tsv",
     log:
         "logs/{sample}/extract_annovar_annotations.{caller}.log",
+    conda:
+        "../../envs/python.yaml"
     script:
         "../../scripts/extract_annovar_annotations.py"

@@ -1,12 +1,12 @@
 rule generate_gtf_pickle:
-    conda:
-        "../../envs/python.yaml"
     input:
         gtf=config["gtf"],
     output:
         pickle=f"{config['gtf']}.pkl",
     log:
         "logs/generate_gtf_pickle.log",
+    conda:
+        "../../envs/python.yaml"
     run:
         import pickle
 
@@ -19,8 +19,6 @@ rule generate_gtf_pickle:
 
 
 rule assign_strand:
-    conda:
-        "../../envs/python.yaml"
     input:
         vcf="{caller}/{sample}/{sample}.snvs.vcf",
         pickle=f"{config['gtf']}.pkl",
@@ -28,13 +26,15 @@ rule assign_strand:
         txt="rseqc/{sample}/infer_experiment.txt",
     output:
         tsv="{caller}/{sample}/{sample}.snv_strandedness.tsv",
+    log:
+        "logs/{sample}/assign_strand.{caller}.log",
+    conda:
+        "../../envs/python.yaml"
     params:
         rate_bias=config["rate_bias"],
         rate_conflict=config["rate_conflict"],
         extend_transcript=config["extend_transcript"],
         strandedness=determine_strandedness,
-    log:
-        "logs/{sample}/assign_strand.{caller}.log",
     script:
         "../../scripts/assign_strand.py"
 

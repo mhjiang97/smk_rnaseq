@@ -1,20 +1,20 @@
 rule vep_check:
-    container:
-        "docker://ensemblorg/ensembl-vep:release_115.2"
     input:
         vcf="{caller}/{sample}/{sample}.vcf",
         fasta=config["fasta"],
         dir_cache=path_cache_vep,
     output:
         vcf=update("{caller}/{sample}/{sample}.vep.vcf"),
+    log:
+        "logs/{sample}/{caller}.vep_update.log",
+    container:
+        "docker://ensemblorg/ensembl-vep:release_115.2"
+    threads: 1
     params:
         cache=config["cache_vep"],
         version=config["version_vep"],
         genome=config["genome"],
         species=config["species"],
-    threads: 1
-    log:
-        "logs/{sample}/{caller}.vep_update.log",
     shell:
         """
         {{ l_input=$(wc -l {input.vcf} | awk '{{print $1}}')

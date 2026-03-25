@@ -3,10 +3,10 @@ rule convert_vcf_to_annovar:
         vcf="{caller}/{sample}/{sample}.vcf",
     output:
         annovar=temp("{caller}/{sample}/av.{sample}.avinput"),
-    params:
-        prefix="{caller}/{sample}/av",
     log:
         "logs/{sample}/convert_vcf_to_annovar.{caller}.log",
+    params:
+        prefix="{caller}/{sample}/av",
     shell:
         """
         convert2annovar.pl \\
@@ -25,16 +25,16 @@ rule annovar:
     output:
         tmp=temp(f"{{caller}}/{{sample}}/{{sample}}.{GENOME2}_multianno.txt"),
         annovar=protected("{caller}/{sample}/{sample}.annovar.tsv"),
+    log:
+        "logs/{sample}/annovar.{caller}.log",
+    threads: 1
+    resources:
+        tmpdir=lambda wildcards: f"{wildcards.caller}/{wildcards.sample}",
     params:
         **get_annovar_arguments(),
         prefix="{caller}/{sample}/{sample}",
         cache=config["cache_annovar"],
         genome=GENOME2,
-    threads: 1
-    resources:
-        tmpdir=lambda wildcards: f"{wildcards.caller}/{wildcards.sample}",
-    log:
-        "logs/{sample}/annovar.{caller}.log",
     shell:
         """
         {{ table_annovar.pl \\

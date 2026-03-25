@@ -4,7 +4,7 @@
 
 set -x
 
-{ dir=${snakemake_output[dir]}
+{ _dir=${snakemake_output[_dir]}
 index=${snakemake_params[index]}
 layout=${snakemake_params[layout]}
 threads=${snakemake[threads]}
@@ -20,8 +20,8 @@ else
 fi
 
 if [ "${layout}" == "paired-end" ]; then
-    salmon quant --gcBias --seqBias -l A --threads "${threads}" -i "${index}" -1 "${fq_1}" -2 "${fq_2}" -o "${dir}"
+    salmon quant --gcBias --seqBias -l A --threads "${threads}" -i "${index}" -1 "${fq_1}" -2 "${fq_2}" -o "${_dir}"
 else
-    salmon quant --seqBias -l A --threads "${threads}" -i "${index}" -r "${fq}" -o "${dir}"
+    salmon quant --seqBias -l A --threads "${threads}" -i "${index}" -r "${fq}" -o "${_dir}"
 fi; } \
 1> "${snakemake_log[0]}" 2>&1

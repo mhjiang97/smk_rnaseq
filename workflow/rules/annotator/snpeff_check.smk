@@ -1,18 +1,18 @@
 rule snpeff_check:
-    conda:
-        "../../envs/snpeff.yaml"
     input:
         vcf="{caller}/{sample}/{sample}.vcf",
         fasta=config["fasta"],
         dir_cache=path_cache_snpeff,
     output:
         vcf=update("{caller}/{sample}/{sample}.snpeff.vcf"),
+    log:
+        "logs/{sample}/{caller}.snpeff_update.log",
+    conda:
+        "../../envs/snpeff.yaml"
     params:
         cache=config["cache_snpeff"],
         version=config["version_snpeff"],
         genome=config["genome"],
-    log:
-        "logs/{sample}/{caller}.snpeff_update.log",
     shell:
         """
         {{ l_input=$(wc -l {input.vcf} | awk '{{print $1}}')

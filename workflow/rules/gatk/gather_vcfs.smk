@@ -1,17 +1,17 @@
 rule gather_vcfs:
-    conda:
-        "../../envs/gatk.yaml"
     input:
         vcfs=gather.split_bed("mutect2/{{sample}}/scatters/{scatteritem}.raw.vcf"),
         fasta=config["fasta"],
     output:
         vcf="mutect2/{sample}/{sample}.raw.vcf",
-    params:
-        inputs=lambda wildcards, input: " ".join(f"--INPUT {vcf}" for vcf in input.vcfs),
     log:
         "logs/{sample}/gather_vcfs.log",
+    conda:
+        "../../envs/gatk.yaml"
     resources:
         tmpdir=lambda wildcards: f"mutect2/{wildcards.sample}",
+    params:
+        inputs=lambda wildcards, input: " ".join(f"--INPUT {vcf}" for vcf in input.vcfs),
     shell:
         """
         gatk GatherVcfs \\

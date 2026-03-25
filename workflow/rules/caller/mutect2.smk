@@ -15,8 +15,6 @@ rule split_bed:
 
 
 rule mutect2:
-    conda:
-        "../../envs/gatk.yaml"
     input:
         unpack(get_mutect2_inputs),
         bed="ref/interval/{scatteritem}.bed",
@@ -24,16 +22,18 @@ rule mutect2:
         vcf=temp("mutect2/{sample}/scatters/{scatteritem}.raw.vcf"),
         f1r2=temp("mutect2/{sample}/scatters/{scatteritem}.f1r2.tar.gz"),
         stats=temp("mutect2/{sample}/scatters/{scatteritem}.raw.vcf.stats"),
+    log:
+        "logs/{sample}/mutect2.{scatteritem}.log",
+    conda:
+        "../../envs/gatk.yaml"
+    threads: 1
+    resources:
+        tmpdir=lambda wildcards: f"mutect2/{wildcards.sample}/scatters",
     params:
         min_coverage=config["min_coverage"],
         min_qual_base=config["min_qual_base"],
         arg_dna=get_mutect2_arguments,
         args=get_extra_arguments("mutect2"),
-    log:
-        "logs/{sample}/mutect2.{scatteritem}.log",
-    threads: 1
-    resources:
-        tmpdir=lambda wildcards: f"mutect2/{wildcards.sample}/scatters",
     shell:
         """
         gatk Mutect2 \\

@@ -1,16 +1,16 @@
 checkpoint infer_experiment:
-    conda:
-        "../../envs/rseqc.yaml"
     input:
         bam=f"{MAPPER}/{{sample}}/{{sample}}.sorted.bam",
         bed=f"ref/bed/{Path(config['gtf']).stem}.bed",
     output:
         txt="rseqc/{sample}/infer_experiment.txt",
+    log:
+        "logs/{sample}/infer_experiment.log",
+    conda:
+        "../../envs/rseqc.yaml"
     params:
         size_sample=200000,
         min_qual_mapping=30,
-    log:
-        "logs/{sample}/infer_experiment.log",
     shell:
         """
         infer_experiment.py \\

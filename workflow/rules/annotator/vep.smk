@@ -1,6 +1,4 @@
 rule vep:
-    container:
-        "docker://ensemblorg/ensembl-vep:release_115.2"
     input:
         vcf="{caller}/{sample}/{sample}.vcf",
         fasta=config["fasta"],
@@ -8,14 +6,16 @@ rule vep:
     output:
         vcf=protected("{caller}/{sample}/{sample}.vep.vcf"),
         html="{caller}/{sample}/{sample}.vep.html",
+    log:
+        "logs/{sample}/{caller}.vep.log",
+    container:
+        "docker://ensemblorg/ensembl-vep:release_115.2"
+    threads: 1
     params:
         cache=config["cache_vep"],
         version=config["version_vep"],
         genome=config["genome"],
         species=config["species"],
-    threads: 1
-    log:
-        "logs/{sample}/{caller}.vep.log",
     shell:
         """
         vep \\

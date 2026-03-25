@@ -1,6 +1,4 @@
 rule snpeff:
-    conda:
-        "../../envs/snpeff.yaml"
     input:
         vcf="{caller}/{sample}/{sample}.vcf",
         fasta=config["fasta"],
@@ -8,12 +6,14 @@ rule snpeff:
     output:
         vcf=protected("{caller}/{sample}/{sample}.snpeff.vcf"),
         html="{caller}/{sample}/{sample}.snpeff.html",
+    log:
+        "logs/{sample}/{caller}.snpeff.log",
+    conda:
+        "../../envs/snpeff.yaml"
     params:
         cache=config["cache_snpeff"],
         version=config["version_snpeff"],
         genome=config["genome"],
-    log:
-        "logs/{sample}/{caller}.snpeff.log",
     shell:
         """
         snpEff -Xmx{resources.mem_mb}M \\

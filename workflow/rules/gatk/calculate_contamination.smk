@@ -1,19 +1,19 @@
 rule calculate_contamination:
-    conda:
-        "../../envs/gatk.yaml"
     input:
         unpack(get_calculate_contamination_inputs),
     output:
         table="mutect2/{sample}/{sample}.contamination.table",
         segmentation="mutect2/{sample}/{sample}.segmentation.table",
-    params:
-        args_dna=get_calculate_contamination_arguments,
-        args=get_extra_arguments("calculate_contamination"),
     log:
         "logs/{sample}/calculate_contamination.log",
+    conda:
+        "../../envs/gatk.yaml"
     threads: 1
     resources:
         tmpdir=lambda wildcards: f"mutect2/{wildcards.sample}",
+    params:
+        args_dna=get_calculate_contamination_arguments,
+        args=get_extra_arguments("calculate_contamination"),
     shell:
         """
         gatk CalculateContamination \\

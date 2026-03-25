@@ -1,19 +1,19 @@
 rule convert_vep:
-    conda:
-        "../../envs/vcf2maf.yaml"
     input:
         vcf="{caller}/{sample}/{sample}.{mutation}.vep.vcf",
         fasta=config["fasta"],
     output:
         maf="{caller}/{sample}/{sample}.{mutation}.vep.maf",
+    log:
+        "logs/{sample}/convert_vep.{caller}.{mutation}.log",
+    conda:
+        "../../envs/vcf2maf.yaml"
     params:
         version=config["version_vep"],
         genome=config["genome"],
         cache=config["cache_vep"],
         species=config["species"],
         arg_normal=get_convert_vep_arguments,
-    log:
-        "logs/{sample}/convert_vep.{caller}.{mutation}.log",
     shell:
         """
         vcf2maf.pl \\
@@ -33,17 +33,17 @@ rule convert_vep:
 
 
 rule convert_snpeff:
-    conda:
-        "../../envs/snpeff.yaml"
     input:
         vcf="{caller}/{sample}/{sample}.{mutation}.snpeff.vcf",
     output:
         tsv="{caller}/{sample}/{sample}.{mutation}.snpeff.tsv",
+    log:
+        "logs/{sample}/convert_snpeff.{caller}.{mutation}.log",
+    conda:
+        "../../envs/snpeff.yaml"
     params:
         fields_common=FIELDS_COMMON,
         fields_fmt=get_convert_snpeff_arguments,
-    log:
-        "logs/{sample}/convert_snpeff.{caller}.{mutation}.log",
     shell:
         """
         {{ SnpSift extractFields \\

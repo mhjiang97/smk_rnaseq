@@ -7,11 +7,11 @@ rule fastqc:
             then=directory("fastqc/fastp/{sample}"),
             otherwise=directory("fastqc/{sample}"),
         ),
-    params:
-        layout=get_library_layout,
-    threads: 1
     log:
         "logs/{sample}/fastqc.log",
+    threads: 1
+    params:
+        layout=get_library_layout,
     script:
         "../../scripts/fastqc.sh"
 

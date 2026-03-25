@@ -183,6 +183,10 @@ def perform_validations_with_rich(
     root.handlers = old_handlers
 
 
+def _expand(v):
+    return Path(v).expanduser().as_posix() if isinstance(v, str) and "~" in v else v
+
+
 # *--------------------------------------------------------------------------* #
 # * Functions to validate the sample table                                   * #
 # *--------------------------------------------------------------------------* #

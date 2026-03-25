@@ -1,17 +1,17 @@
 rule salmon_index:
-    conda:
-        "../../envs/salmon.yaml"
     input:
         fasta_transcriptome=config["fasta_transcriptome"],
         fasta=config["fasta"],
     output:
-        dir=directory(config["index_salmon"]),
+        _dir=directory(config["index_salmon"]),
         index_pos=f"{config['index_salmon']}/pos.bin",
-    threads: 1
-    shadow:
-        "minimal"
     log:
         "logs/salmon_index.log",
+    shadow:
+        "minimal"
+    conda:
+        "../../envs/salmon.yaml"
+    threads: 1
     shell:
         """
         {{ grep "^>" {input.fasta} | cut -d " " -f 1 > decoys.txt
@@ -23,7 +23,7 @@ rule salmon_index:
             -t gentrome.fa \\
             -d decoys.txt \\
             -p {threads} \\
-            -i {output.dir} \\
+            -i {output._dir} \\
             --gencode \\
             --keepDuplicates; }} \\
         1> {log} 2>&1
@@ -31,20 +31,20 @@ rule salmon_index:
 
 
 checkpoint salmon:
-    conda:
-        "../../envs/salmon.yaml"
     input:
         unpack(get_fastq_files),
         index_pos=ancient(f"{config['index_salmon']}/pos.bin"),
     output:
         log="salmon/{sample}/logs/salmon_quant.log",
-        dir=directory("salmon/{sample}"),
+        _dir=directory("salmon/{sample}"),
         quant="salmon/{sample}/quant.sf",
+    log:
+        "logs/{sample}/salmon.log",
+    conda:
+        "../../envs/salmon.yaml"
+    threads: 1
     params:
         index=config["index_salmon"],
         layout=get_library_layout,
-    threads: 1
-    log:
-        "logs/{sample}/salmon.log",
     script:
         "../../scripts/salmon.sh"
