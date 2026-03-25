@@ -30,6 +30,21 @@ if config["dir_run"] and config["dir_run"] is not None:
 
 
 # *--------------------------------------------------------------------------* #
+# * Standarize paths in config                                               * #
+# *--------------------------------------------------------------------------* #
+def _expand(v):
+    return Path(v).expanduser().as_posix() if isinstance(v, str) and "~" in v else v
+
+for key, value in config.items():
+    if isinstance(value, str):
+        config[key] = _expand(value)
+    elif isinstance(value, list):
+        config[key] = [_expand(v) for v in value]
+    elif isinstance(value, dict):
+        config[key] = {k: _expand(v) for k, v in value.items()}
+
+
+# *--------------------------------------------------------------------------* #
 # * Constant-like variables                                                  * #
 # *--------------------------------------------------------------------------* #
 MAPPER = config["mapper"]
