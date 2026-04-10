@@ -1,11 +1,36 @@
+# *==========================================================================* #
+# * Analysis switches                                                        * #
+# *==========================================================================* #
 quantification: true
 quantification_te: false
 mutation: true
 fusion: true
 
-dir_run: /projects/project_xxx/analysis/rnaseq
-dir_data: /projects/project_xxx/data/rnaseq
+# *==========================================================================* #
+# * FASTQ preprocessing and QC                                               * #
+# *==========================================================================* #
+clean_fq: true
+run_fastqc: true
+run_multiqc: true
 
+# *==========================================================================* #
+# * Project paths                                                            * #
+# *==========================================================================* #
+dir_run: ~/projects/project_xxx/analysis/rnaseq
+dir_data: ~/projects/project_xxx/data/rnaseq
+
+# *==========================================================================* #
+# * FASTQ naming patterns                                                    * #
+# *==========================================================================* #
+suffixes_fastq:
+  paired-end:
+    - "_R1.fq.gz"
+    - "_R2.fq.gz"
+  single-end: ".fq.gz"
+
+# *==========================================================================* #
+# * Tool selection                                                           * #
+# *==========================================================================* #
 mapper: star
 callers:
   - haplotypecaller
@@ -18,33 +43,40 @@ annotators:
 callers_fusion:
   - arriba
 
+# *==========================================================================* #
+# * Species and genome build                                                 * #
+# *==========================================================================* #
 species: homo_sapiens
 genome: GRCh38
 
-index_salmon: /doc/tool/quantifier/salmon/GRCh38
-index_star: /doc/tool/mapper/star/GRCh38
+# *==========================================================================* #
+# * Reference indexes and resources                                          * #
+# *==========================================================================* #
+gtf: ~/doc/ref/GRCh38/gtf/gencode.v44.annotation.gtf
+gtf_te: ~/doc/tool/te/gtf/hg38_gencode_rmsk_indi.gtf
+fasta: ~/doc/ref/GRCh38/fasta/GRCh38.primary_assembly.genome.fa
+fasta_transcriptome: ~/doc/ref/GRCh38/fasta/gencode.v44.transcripts.fa
 
-gtf: /doc/ref/GRCh38/gtf/gencode.v44.annotation.gtf
-gtf_te: /doc/tool/TE/gtf/hg38_gencode_rmsk_indi.gtf
-fasta: /doc/ref/GRCh38/fasta/GRCh38.primary_assembly.genome.fa
-fasta_transcriptome: /doc/ref/GRCh38/fasta/gencode.v44.transcripts.fa
-
-slop_transcript: 0.2
+index_salmon: ~/doc/tool/quantifier/salmon/GRCh38
+index_star: ~/doc/tool/mapper/star/GRCh38
 
 polymorphism_known:
-  - /doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/dbsnp_146.hg38.vcf.gz
-  - /doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/beta/Homo_sapiens_assembly38.known_indels.vcf.gz
-  - /doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz
-  - /doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/1000G_omni2.5.hg38.vcf.gz
+  - ~/doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/dbsnp_146.hg38.vcf.gz
+  - ~/doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/beta/Homo_sapiens_assembly38.known_indels.vcf.gz
+  - ~/doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/Mills_and_1000G_gold_standard.indels.hg38.vcf.gz
+  - ~/doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/1000G_omni2.5.hg38.vcf.gz
 
-dbsnp: /doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/dbsnp_146.hg38.vcf.gz
-pon: /doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/1000g_pon.hg38.vcf.gz
-resource_germline: /doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/af-only-gnomad.hg38.vcf.gz
+dbsnp: ~/doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/dbsnp_146.hg38.vcf.gz
+pon: ~/doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/1000g_pon.hg38.vcf.gz
+resource_germline: ~/doc/db/igenomes/gatk/GRCh38/Annotation/GATKBundle/af-only-gnomad.hg38.vcf.gz
 
+# *==========================================================================* #
+# * Annotation cache and database settings                                   * #
+# *==========================================================================* #
 check_annotations: false
-cache_vep: /.vep
-cache_snpeff: /doc/tool/annotator/snpeff
-cache_annovar: /doc/tool/annotator/annovar
+cache_vep: ~/.vep
+cache_snpeff: ~/doc/tool/annotator/snpeff
+cache_annovar: ~/doc/tool/annotator/annovar
 version_vep: 115
 version_snpeff: "105"
 protocols:
@@ -59,6 +91,10 @@ protocols:
   gene:
     ["refGene"]
 
+# *==========================================================================* #
+# * Variant calling and filtering thresholds                                 * #
+# *==========================================================================* #
+slop_transcript: 0.2
 min_reads: 3
 min_coverage: 10
 min_qual_base: 10
@@ -69,20 +105,16 @@ min_qual_base_dna: 15
 min_qual_mapping_dna: 15
 max_mutants: 1
 
+# *==========================================================================* #
+# * RNA editing strand detection                                             * #
+# *==========================================================================* #
 rate_bias: 0.9
 rate_conflict: 0.5
 extend_transcript: 200
 
-suffixes_fastq:
-  paired-end:
-    - "_R1.fq.gz"
-    - "_R2.fq.gz"
-  single-end: ".fq.gz"
-
-clean_fq: true
-run_fastqc: true
-run_multiqc: true
-
+# *==========================================================================* #
+# * Extra CLI arguments per rule                                             * #
+# *==========================================================================* #
 args_extra:
   haplotypecaller: "--annotation OrientationBiasReadCounts"
   mutect2: "--tumor-lod-to-emit 2"
