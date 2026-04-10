@@ -2,6 +2,7 @@ TO_LEARN_READ_ORIENTATION = False
 
 PARAMETERS_CHECK = [
     "gtf",
+    "gtf_te",
     "fasta",
     "fasta_transcriptome",
     "polymorphism_known",

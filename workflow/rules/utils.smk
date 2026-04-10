@@ -8,6 +8,8 @@ import yaml
 from rich.console import Console
 from rich.logging import RichHandler
 
+logger = logging.getLogger(__name__)
+
 
 def get_targets():
     targets = []
@@ -129,8 +131,14 @@ def validate_vep_container_version(config, rule_file):
 
 def validate_files(config, parameters):
     for param in parameters:
+        if param not in config or config[param] is None:
+            continue
+
         paths = config[param]
         paths = [paths] if isinstance(paths, str) else paths
+        paths = [p for p in paths if p is not None]
+        if not paths:
+            continue
 
         missing = [p for p in paths if not Path(p).exists()]
         if missing:
@@ -162,25 +170,23 @@ def perform_validations_with_rich(
 ):
     root = logging.getLogger()
     old_level = root.level
-    old_handlers = root.handlers.copy()
+    old_handlers = root.handlers[:]
 
     console = Console()
-    logging.basicConfig(
-        level=logging.INFO,
-        format="%(message)s",
-        datefmt="%Y-%m-%d %H:%M:%S",
-        handlers=[RichHandler(console=console, rich_tracebacks=True, markup=True)],
-    )
-    logger = logging.getLogger()
+    try:
+        root.handlers = [
+            RichHandler(console=console, rich_tracebacks=True, markup=True)
+        ]
+        root.setLevel(logging.INFO)
 
-    validate_vep_version(config, vep_env_path)
-    if vep_rule_path is not None:
-        validate_vep_container_version(config, vep_rule_path)
-    validate_files(config, file_params)
-    validate_extra_arguments(config)
-
-    root.setLevel(old_level)
-    root.handlers = old_handlers
+        validate_vep_version(config, vep_env_path)
+        if vep_rule_path is not None:
+            validate_vep_container_version(config, vep_rule_path)
+        validate_files(config, file_params)
+        validate_extra_arguments(config)
+    finally:
+        root.handlers = old_handlers
+        root.setLevel(old_level)
 
 
 def _expand(v):
