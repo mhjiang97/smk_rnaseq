@@ -190,7 +190,14 @@ def perform_validations_with_rich(
 
 
 def _expand(v):
-    return Path(v).expanduser().as_posix() if isinstance(v, str) and "~" in v else v
+    if isinstance(v, str):
+        return Path(v).expanduser().as_posix() if "~" in v else v
+    if isinstance(v, list):
+        return [_expand(x) for x in v]
+    if isinstance(v, dict):
+        return {k: _expand(x) for k, x in v.items()}
+
+    return v
 
 
 # *--------------------------------------------------------------------------* #
