@@ -37,7 +37,7 @@ project/
 ## Prerequisites
 
 - [**Python**](https://www.python.org)
-- [**Snakemake**](https://snakemake.github.io) (>=9.0.0)
+- [**Snakemake**](https://snakemake.github.io)
 - [**eido**](https://pep.databio.org/eido/)
 - [**SAMtools**](https://www.htslib.org)
 - [**Mamba**](https://mamba.readthedocs.io/en/latest/) (recommended) or [**conda**](https://docs.conda.io/projects/conda/en/stable/)
@@ -101,7 +101,7 @@ cd smk_rnaseq/
 # Initialize configuration
 cp config/.config.yaml config/config.yaml
 cp config/pep/.config.yaml config/pep/config.yaml
-cp workflow/profiles/default/.config.yaml workflow/profiles/default/config.yaml
+cp profiles/default/.profile.v9+.yaml profiles/default/profile.v9+.yaml
 ```
 
 ## Configuration
@@ -206,7 +206,7 @@ All default values are defined in the validation schema (`workflow/schemas/confi
 
 <details>
 
-<summary>Edit <code>workflow/profiles/default/config.yaml</code></summary>
+<summary>Edit <code>profiles/default/profile.v9+.yaml</code></summary>
 
 ```yaml
 software-deployment-method:
@@ -302,7 +302,6 @@ The sample table must include these mandatory columns:
 | **strandedness**    | Library strandedness: `"fr-firststrand"`, `"fr-secondstrand"`, or `"unstranded"`. If omitted, auto-detected from Salmon log |
 
 - If dna_sample_name is provided, it should match one of the @RG SM values in the DNA BAM.
-- The DNA control must represent a different sample than the RNA sample. The BAM header @RG SM of dna_control_bam must NOT equal the RNA sample_name.
 - Multiple RNA samples can share the same DNA BAM file as their control.
 
 Another validation schema (`workflow/schemas/pep.schema.yaml`) ensures that the sample table meets the required format.

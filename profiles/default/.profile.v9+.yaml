@@ -1,9 +1,9 @@
 software-deployment-method:
   - conda
   - apptainer
-conda-prefix: /.snakemake/envs/smk_rnaseq
-apptainer-args: "--bind /storage,/home/user"
-apptainer-prefix: /.snakemake/singularity
+conda-prefix: $HOME/.snakemake/envs/smk_rnaseq
+apptainer-args: "--bind /storage,$HOME"
+apptainer-prefix: $HOME/.snakemake/singularity
 # rerun-trigger: mtime
 printshellcmds: True
 keep-incomplete: True
