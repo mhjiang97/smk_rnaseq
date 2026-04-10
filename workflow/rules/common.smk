@@ -5,7 +5,7 @@ from pathlib import Path
 
 from snakemake.utils import min_version, validate
 
-min_version("9.0.0")
+min_version("9.19.0")
 
 
 include: "utils.smk"
@@ -18,6 +18,13 @@ configfile: "config/config.yaml"
 validate(config, "../schemas/config.schema.yaml")
 
 
+# *--------------------------------------------------------------------------* #
+# * Standarize paths in config                                               * #
+# *--------------------------------------------------------------------------* #
+for key, value in config.items():
+    config[key] = _expand(value)
+
+
 pepfile: "config/pep/config.yaml"
 
 
@@ -27,13 +34,6 @@ pepschema: "../schemas/pep.schema.yaml"
 if config["dir_run"] and config["dir_run"] is not None:
 
     workdir: config["dir_run"]
-
-
-# *--------------------------------------------------------------------------* #
-# * Standarize paths in config                                               * #
-# *--------------------------------------------------------------------------* #
-for key, value in config.items():
-    config[key] = _expand(value)
 
 
 # *--------------------------------------------------------------------------* #
