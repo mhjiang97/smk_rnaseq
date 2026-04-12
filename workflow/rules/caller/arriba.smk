@@ -7,6 +7,7 @@ rule arriba:
     output:
         fusion="arriba/{sample}/fusions.tsv",
         fusion_discarded="arriba/{sample}/fusions.discarded.tsv",
+        bam="arriba/{sample}/{sample}.unsorted.bam",
     log:
         "logs/{sample}/arriba.log",
     container:

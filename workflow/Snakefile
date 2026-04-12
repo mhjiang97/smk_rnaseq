@@ -1,10 +1,6 @@
 include: "rules/common.smk"
 
 
-scattergather:
-    split=8,
-
-
 rule all:
     input:
         get_targets(),
@@ -13,7 +9,7 @@ rule all:
 include: "rules/qc/fastp.smk"
 include: "rules/qc/qc.smk"
 include: f"rules/quantifier/{QUANTIFIER}.smk"
-# include: f"rules/mapper/{MAPPER}.smk"
+include: f"rules/mapper/{MAPPER}.smk"
 include: f"rules/quantifier/{QUANTIFIER_TE}.smk"
 include: "rules/gatk/create_sequence_dictionary.smk"
 include: "rules/gatk/mark_duplicates.smk"
@@ -25,7 +21,7 @@ include: "rules/bedtools/slop_bed.smk"
 include: "rules/bedtools/merge_bed.smk"
 
 
-for caller in CALLERS:
+for caller in CALLERS + CALLERS_FUSION:
 
     include: f"rules/caller/{caller}.smk"
 
@@ -37,13 +33,6 @@ include: "rules/gatk/gather_pileup_summaries.smk"
 include: "rules/gatk/calculate_contamination.smk"
 include: "rules/gatk/learn_read_orientation_model.smk"
 include: "rules/gatk/filter_mutect_calls.smk"
-
-
-for caller in CALLERS_FUSION:
-
-    include: f"rules/fusion/{caller}.smk"
-
-
 include: "rules/annotator/cache.smk"
 
 

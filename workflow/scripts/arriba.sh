@@ -10,6 +10,7 @@ fasta=${snakemake_input[fasta]}
 gtf=${snakemake_input[gtf]}
 fusion=${snakemake_output[fusion]}
 fusion_discarded=${snakemake_output[fusion_discarded]}
+bam=${snakemake_output[bam]}
 layout=${snakemake_params[layout]}
 genome=${snakemake_params[genome]}
 index=${snakemake_params[index]}
@@ -69,6 +70,7 @@ STAR \
     --chimScoreSeparation 1 \
     --chimSegmentReadGapMax 3 \
     --chimMultimapNmax 50 \
+    | tee "${bam}" \
     | /arriba_v2.5.1/arriba \
         -x /dev/stdin \
         -o "${fusion}" \
