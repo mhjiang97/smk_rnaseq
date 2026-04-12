@@ -1,3 +1,81 @@
 executor: slurm
 latency-wait: 60
 jobs: 50
+slurm-keep-successful-logs: True
+slurm-init-seconds-before-status-checks: 40
+slurm-partition-config: partitions.yaml
+slurm-jobname-prefix: smk
+slurm-status-command: squeue
+slurm-status-attempts: 5
+software-deployment-method:
+  - apptainer
+  - conda
+conda-prefix: $HOME/.snakemake/envs
+apptainer-args: "--bind $HOME"
+apptainer-prefix: $HOME/.snakemake/singularity
+rerun-trigger: mtime
+printshellcmds: True
+keep-incomplete: True
+cores: 9999
+default-resources:
+  slurm_account: your_slurm_account
+  mem_mb: 50000  # 50GB
+  runtime: 48h
+  slurm_extra: "--mail-type=END --mail-user=your_email@example.com"
+set-scatter:
+  split_bed: 8
+set-threads:
+  salmon: 4
+  salmon_index: 10
+  featurecounts_transposable_elements: 4
+  star: 10
+  star_index: 10
+  arriba: 10
+  haplotypecaller: 10
+  mutect2: 10
+  vep: 10
+  annovar: 10
+  fastp_paired_end: 4
+  fastp_single_end: 4
+  fastqc: 4
+set-resources:
+  salmon_index:
+    mem_mb: 40000  # 40GB
+  salmon:
+    mem_mb: 50000 # 50GB
+  # star:
+  #   mem_mb: 100000  # 100GB
+  mark_duplicates:
+    mem_mb: 50000  # 50GB
+  split_n_cigar_reads:
+    mem_mb: 50000  # 50GB
+  base_recalibrator:
+    mem_mb: 50000  # 50GB
+  apply_bqsr:
+    mem_mb: 50000  # 50GB
+  haplotypecaller:
+    mem_mb: 10000  # 10GB
+  mutect2:
+    mem_mb: 5000  # 5GB
+  learn_read_orientation_model:
+    mem_mb: 10000  # 10GB
+  # get_pileup_summaries:
+  #   mem_mb: 20000  # 20GB
+  # get_pileup_summaries_dna:
+  #   mem_mb: 20000  # 20GB
+  gather_vcfs:
+    mem_mb: 10000  # 10GB
+  merge_mutect_stats:
+    mem_mb: 10000  # 10GB
+  gather_pileup_summaries:
+    mem_mb: 10000  # 10GB
+  calculate_contamination:
+    mem_mb: 10000  # 10GB
+  filter_mutect_calls:
+    mem_mb: 10000  # 10GB
+  snpeff:
+    mem_mb: 20000  # 20GB
+  vcf2bed:
+    mem_mb: 10000  # 10GB
+  # arriba:
+  #   mem_mb: 80000  # 80GB
