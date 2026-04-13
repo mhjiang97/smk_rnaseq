@@ -21,5 +21,6 @@ rule arriba:
         layout=get_library_layout,
         genome=config["genome"],
         dir_tmp="arriba/{sample}/tmp",
+        _dir="arriba/{sample}",
     script:
         "../../scripts/arriba.sh"

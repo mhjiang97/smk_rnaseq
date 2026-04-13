@@ -15,6 +15,7 @@ bam=${snakemake_output[bam]}
 layout=${snakemake_params[layout]}
 genome=${snakemake_params[genome]}
 dir_tmp=${snakemake_params[dir_tmp]}
+dir=${snakemake_params[_dir]}
 threads=${snakemake[threads]}
 mem_mb=${snakemake_resources[mem_mb]}
 
@@ -44,6 +45,8 @@ else
     echo "$(date +"%Y-%m-%d %H:%M:%S") [ERROR] Unexpected genome: ${genome}"
     exit 1
 fi
+
+cd "${dir}" || exit 1
 
 [[ "${files_in[0]}" == *".gz" ]] && cmd_read="zcat" || cmd_read="cat"
 
