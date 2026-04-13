@@ -8,12 +8,12 @@ set -x
 { sample=${snakemake_wildcards[sample]}
 fasta=${snakemake_input[fasta]}
 gtf=${snakemake_input[gtf]}
+index=${snakemake_input[index]}
 fusion=${snakemake_output[fusion]}
 fusion_discarded=${snakemake_output[fusion_discarded]}
 bam=${snakemake_output[bam]}
 layout=${snakemake_params[layout]}
 genome=${snakemake_params[genome]}
-index=${snakemake_params[index]}
 dir_tmp=${snakemake_params[dir_tmp]}
 threads=${snakemake[threads]}
 mem_mb=${snakemake_resources[mem_mb]}

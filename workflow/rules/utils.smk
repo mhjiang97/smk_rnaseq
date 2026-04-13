@@ -663,11 +663,13 @@ def get_annovar_arguments():
 # *--------------------------------------------------------------------------* #
 # * Functions to estimate memory requirements                                * #
 # *--------------------------------------------------------------------------* #
-def get_star_mem_mb(wildcards, attempt=1):
-    return get_star_genome_mem_mb() + get_star_sort_mem_mb(wildcards, attempt)
+def get_star_mem_mb(wildcards, input, attempt=1):
+    return get_star_genome_mem_mb(input.index) + get_star_sort_mem_mb(
+        wildcards, attempt
+    )
 
 
-def get_star_genome_mem_mb():
+def get_star_genome_mem_mb(index):
     species = config["species"]
     genome = config["genome"]
 
@@ -678,7 +680,7 @@ def get_star_genome_mem_mb():
     else:
         mem_mb = 16000
 
-    return max(mem_mb, get_star_index_size_mb())
+    return max(mem_mb, get_star_index_size_mb(index))
 
 
 def get_star_sort_mem_mb(wildcards, attempt=1):
@@ -695,17 +697,11 @@ def get_star_sort_mem_mb(wildcards, attempt=1):
 
 
 @lru_cache(maxsize=1)
-def get_star_index_size_mb():
-    dir_index = Path(config["index_star"])
+def get_star_index_size_mb(index):
     mib = 1024 * 1024
 
-    if not dir_index.exists():
-        raise FileNotFoundError(
-            f"Cannot determine STAR index size: '{dir_index}' not found."
-        )
-
     bytes_total = sum(
-        path.stat().st_size for path in dir_index.iterdir() if path.is_file()
+        path.stat().st_size for path in Path(index).iterdir() if path.is_file()
     )
 
     return (bytes_total + mib - 1) // mib

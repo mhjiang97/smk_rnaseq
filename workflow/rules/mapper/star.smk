@@ -3,8 +3,7 @@ rule star_index:
         gtf=config["gtf"],
         fasta=config["fasta"],
     output:
-        dir=protected(directory(config["index_star"])),
-        index_sa=f"{config['index_star']}/SA",
+        index=protected(directory(config["index_star"])),
     log:
         "logs/star_index.log",
     conda:
@@ -18,7 +17,7 @@ rule star_index:
             {params.args} \\
             --runMode genomeGenerate \\
             --runThreadN {threads} \\
-            --genomeDir {output.dir} \\
+            --genomeDir {output.index} \\
             --genomeFastaFiles {input.fasta} \\
             --sjdbGTFfile {input.gtf} \\
             1> {log} 2>&1
@@ -29,7 +28,7 @@ rule star:
     input:
         unpack(get_fastq_files),
         gtf=config["gtf"],
-        index_sa=ancient(f"{config['index_star']}/SA"),
+        index=ancient(config["index_star"]),
     output:
         bam=protected("star/{sample}/Aligned.sortedByCoord.out.bam"),
         bai=protected("star/{sample}/Aligned.sortedByCoord.out.bam.bai"),
@@ -42,7 +41,9 @@ rule star:
         "../../envs/star.yaml"
     threads: 1
     resources:
-        mem_mb=lambda wildcards, attempt: get_star_mem_mb(wildcards, attempt),
+        mem_mb=lambda wildcards, input, attempt: get_star_mem_mb(
+            wildcards, input, attempt
+        ),
         mem_mb_sort=lambda wildcards, attempt: get_star_sort_mem_mb(wildcards, attempt),
     params:
         index=config["index_star"],
