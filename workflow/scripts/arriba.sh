@@ -12,10 +12,14 @@ index=${snakemake_input[index]}
 fusion=${snakemake_output[fusion]}
 fusion_discarded=${snakemake_output[fusion_discarded]}
 bam=${snakemake_output[bam]}
+log=${snakemake_output[log]}
+log_final=${snakemake_output[log_final]}
+log_progress=${snakemake_output[log_progress]}
+log_std=${snakemake_output[log_std]}
+sj=${snakemake_output[sj]}
 layout=${snakemake_params[layout]}
 genome=${snakemake_params[genome]}
 dir_tmp=${snakemake_params[dir_tmp]}
-dir=${snakemake_params[_dir]}
 threads=${snakemake[threads]}
 mem_mb=${snakemake_resources[mem_mb]}
 
@@ -45,8 +49,6 @@ else
     echo "$(date +"%Y-%m-%d %H:%M:%S") [ERROR] Unexpected genome: ${genome}"
     exit 1
 fi
-
-cd "${dir}" || exit 1
 
 [[ "${files_in[0]}" == *".gz" ]] && cmd_read="zcat" || cmd_read="cat"
 
@@ -83,5 +85,11 @@ STAR \
         -b "${blacklist}" \
         -k "${known_fusions}" \
         -t "${known_fusions}" \
-        -p "${protein_domains}"; } \
+        -p "${protein_domains}"
+
+mv Log.final.out "${log_final}"
+mv Log.out "${log}"
+mv Log.progress.out "${log_progress}"
+mv Log.std.out "${log_std}"
+mv SJ.out.tab "${sj}"; } \
 1> "${snakemake_log[0]}" 2>&1
