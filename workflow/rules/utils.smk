@@ -55,6 +55,7 @@ def get_targets():
     if TO_CALL_FUSION:
         if "arriba" in CALLERS_FUSION:
             targets += [f"arriba/{sample}/fusions.tsv" for sample in SAMPLES]
+            targets += [f"arriba/{sample}/fusions.pdf" for sample in SAMPLES]
 
     if TO_CLEAN_FQ:
         targets += [f"fastp/{sample}/{sample}.json" for sample in SAMPLES]
@@ -658,6 +659,48 @@ def get_annovar_arguments():
         "protocol": ",".join(protocols),
         "operation": ",".join(operations),
     }
+
+
+def get_arriba_version(rule_file=workflow.source_path("caller/arriba.smk")):
+    with open(rule_file, "r") as f:
+        text = f.read()
+
+    patterns = [
+        re.compile(r"docker://uhrigs/arriba:(\d+(?:\.\d+)*)"),
+        re.compile(r"arriba_(\d+(?:\.\d+)*)\.sif"),
+    ]
+    for pattern in patterns:
+        match = pattern.search(text)
+        if match:
+            return match.group(1)
+
+    raise ValueError(
+        f"Cannot determine Arriba version from '{rule_file}'."
+    )
+
+
+def get_arriba_database(which):
+    if which not in ["blacklist", "cytobands", "known_fusions", "protein_domains"]:
+        raise ValueError(f"Invalid Arriba database type '{which}'.")
+    genome = convert_genome(config["genome"])
+    version = get_arriba_version()
+    grc_names = {"hg38": "GRCh38", "hg19": "GRCh37", "mm39": "GRCm39"}
+    grc = grc_names.get(genome)
+    if grc is None:
+        raise ValueError(
+            f"Unsupported genome '{genome}' for Arriba database selection."
+        )
+
+    base = f"/arriba_v{version}/database"
+    tag = f"{genome}_{grc}_v{version}"
+    extensions = {
+        "blacklist": ".tsv.gz",
+        "cytobands": ".tsv",
+        "known_fusions": ".tsv.gz",
+        "protein_domains": ".gff3",
+    }
+
+    return f"{base}/{which}_{tag}{extensions[which]}"
 
 
 # *--------------------------------------------------------------------------* #

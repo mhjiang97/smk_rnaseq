@@ -25,8 +25,40 @@ rule arriba:
             wildcards, input, attempt
         ),
     params:
+        blacklist=get_arriba_database("blacklist"),
+        known_fusions=get_arriba_database("known_fusions"),
+        protein_domains=get_arriba_database("protein_domains"),
+        version=get_arriba_version(),
         layout=get_library_layout,
-        genome=config["genome"],
         dir_tmp="arriba/{sample}/tmp",
     script:
         "../../scripts/arriba.sh"
+
+
+rule draw_fusions:
+    input:
+        fusion="arriba/{sample}/fusions.tsv",
+        bam=f"{MAPPER}/{{sample}}/{{sample}}.sorted.bam",
+        gtf=config["gtf"],
+    output:
+        pdf="arriba/{sample}/fusions.pdf",
+    log:
+        "logs/{sample}/arriba_draw_fusions.log",
+    container:
+        "docker://uhrigs/arriba:2.5.1"
+    threads: 1
+    params:
+        cytobands=get_arriba_database("cytobands"),
+        protein_domains=get_arriba_database("protein_domains"),
+        version=get_arriba_version(),
+    shell:
+        """
+        /arriba_v{params.version}/draw_fusions.R \\
+            --fusions={input.fusion} \\
+            --alignments={input.bam} \\
+            --annotation={input.gtf} \\
+            --cytobands={params.cytobands} \\
+            --proteinDomains={params.protein_domains} \\
+            --output={output.pdf} \\
+            1> {log} 2>&1
+        """

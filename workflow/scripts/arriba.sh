@@ -17,8 +17,11 @@ log_final=${snakemake_output[log_final]}
 log_progress=${snakemake_output[log_progress]}
 log_std=${snakemake_output[log_std]}
 sj=${snakemake_output[sj]}
+blacklist=${snakemake_params[blacklist]}
+known_fusions=${snakemake_params[known_fusions]}
+protein_domains=${snakemake_params[protein_domains]}
+version=${snakemake_params[version]}
 layout=${snakemake_params[layout]}
-genome=${snakemake_params[genome]}
 dir_tmp=${snakemake_params[dir_tmp]}
 threads=${snakemake[threads]}
 mem_mb=${snakemake_resources[mem_mb]}
@@ -33,24 +36,10 @@ else
     exit 1
 fi
 
-if [ "${genome}" == "hg38" ] || [ "${genome}" == "GRCh38" ]; then
-    blacklist=/arriba_v2.5.1/database/blacklist_hg38_GRCh38_v2.5.1.tsv.gz
-    known_fusions=/arriba_v2.5.1/database/known_fusions_hg38_GRCh38_v2.5.1.tsv.gz
-    protein_domains=/arriba_v2.5.1/database/protein_domains_hg38_GRCh38_v2.5.1.gff3
-elif [ "${genome}" == "hg19" ] || [ "${genome}" == "GRCh37" ]; then
-    blacklist=/arriba_v2.5.1/database/blacklist_hg19_GRCh37_v2.5.1.tsv.gz
-    known_fusions=/arriba_v2.5.1/database/known_fusions_hg19_GRCh37_v2.5.1.tsv.gz
-    protein_domains=/arriba_v2.5.1/database/protein_domains_hg19_GRCh37_v2.5.1.gff3
-elif [ "${genome}" == "mm39" ] || [ "${genome}" == "GRCm39" ]; then
-    blacklist=/arriba_v2.5.1/database/blacklist_mm39_GRCm39_v2.5.1.tsv.gz
-    known_fusions=/arriba_v2.5.1/database/known_fusions_mm39_GRCm39_v2.5.1.tsv.gz
-    protein_domains=/arriba_v2.5.1/database/protein_domains_mm39_GRCm39_v2.5.1.gff3
-else
-    echo "$(date +"%Y-%m-%d %H:%M:%S") [ERROR] Unexpected genome: ${genome}"
-    exit 1
-fi
 
 [[ "${files_in[0]}" == *".gz" ]] && cmd_read="zcat" || cmd_read="cat"
+
+arriba="/arriba_v${version}/arriba"
 
 STAR \
     --outTmpDir "${dir_tmp}" \
@@ -76,7 +65,7 @@ STAR \
     --chimSegmentReadGapMax 3 \
     --chimMultimapNmax 50 \
     | tee "${bam}" \
-    | /arriba_v2.5.1/arriba \
+    | "${arriba}" \
         -x /dev/stdin \
         -o "${fusion}" \
         -O "${fusion_discarded}" \
