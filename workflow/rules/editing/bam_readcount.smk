@@ -8,7 +8,7 @@ rule bam_readcount:
     log:
         "logs/{sample}/bam_readcount.{sample_dna}.{caller}.log",
     container:
-        "docker://mgibio/bam-readcount:1.0.1"
+        get_container("bam-readcount")
     params:
         min_qual_mapping=config["min_qual_mapping_dna"],
         min_qual_base=config["min_qual_base_dna"],

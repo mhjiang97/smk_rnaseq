@@ -21,6 +21,8 @@ properties:
     properties:
       arriba:
         type: ["string", "null"]
+      bam-readcount:
+        type: ["string", "null"]
   dir_run:
     type: string
   dir_data:

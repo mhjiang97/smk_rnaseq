@@ -1,5 +1,7 @@
 CONTAINERS = {
     "arriba": "docker://uhrigs/arriba:2.5.1",
+    "bam-readcount": "docker://mgibio/bam-readcount:1.0.1",
+    "vep": "docker://ensemblorg/ensembl-vep:release_115.2",
 }
 
 TO_LEARN_READ_ORIENTATION = False
@@ -13,6 +15,7 @@ PARAMETERS_CHECK = [
     "dbsnp",
     "pon",
     "resource_germline",
+    "containers",
 ]
 
 COLS_CHECK = {"dna_control_bam", "dna_sample_name"}

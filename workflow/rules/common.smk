@@ -121,5 +121,4 @@ perform_validations_with_rich(
     config,
     workflow.source_path("../envs/vep.yaml"),
     PARAMETERS_CHECK,
-    workflow.source_path("annotator/vep.smk"),
 )

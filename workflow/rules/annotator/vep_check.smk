@@ -8,7 +8,7 @@ rule vep_check:
     log:
         "logs/{sample}/{caller}.vep_update.log",
     container:
-        "docker://ensemblorg/ensembl-vep:release_115.2"
+        get_container("vep")
     threads: 1
     params:
         cache=config["cache_vep"],

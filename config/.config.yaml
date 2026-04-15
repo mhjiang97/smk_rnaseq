@@ -126,3 +126,5 @@ args_extra:
 local_container: false
 containers:
   arriba: ~/local/var/singularity/arriba_2.5.1.sif
+  bam-readcount: ~/local/var/singularity/bam-readcount_1.0.1.sif
+  vep: ~/local/var/ensembl-vep_115.2.sif

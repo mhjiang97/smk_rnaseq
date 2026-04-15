@@ -103,16 +103,18 @@ def validate_vep_version(config, env_file):
         )
 
 
-def validate_vep_container_version(config, rule_file):
-    with open(rule_file, "r") as f:
-        text = f.read()
-
-    pattern = re.compile(r"docker://ensemblorg/ensembl-vep:release_(\d+(?:\.\d+)?)")
+def validate_vep_container_version(config):
+    if config["local_container"]:
+        text = config["containers"].get("vep")
+        pattern = re.compile(r"ensembl-vep_(\d+(?:\.\d+)*)\.sif")
+    else:
+        text = CONTAINERS.get("vep")
+        pattern = re.compile(r"docker://ensemblorg/ensembl-vep:release_(\d+(?:\.\d+)?)")
     match = pattern.search(text)
     if match is None:
         logger.warning(
             f"[bold yellow]⚠ Unable to validate VEP container version[/]: "
-            f"no 'docker://ensemblorg/ensembl-vep:release_<version>' found in '{rule_file}'."
+            f"no 'docker://ensemblorg/ensembl-vep:release_<version>' found in '{text}'."
         )
         return
 
@@ -135,8 +137,13 @@ def validate_files(config, parameters):
         if param not in config or config[param] is None:
             continue
 
-        paths = config[param]
-        paths = [paths] if isinstance(paths, str) else paths
+        value = config[param]
+        if isinstance(value, dict):
+            paths = list(value.values())
+        elif isinstance(value, str):
+            paths = [value]
+        else:
+            paths = list(value)
         paths = [p for p in paths if p is not None]
         if not paths:
             continue
@@ -166,9 +173,7 @@ def validate_extra_arguments(config):
                 raise ValueError()
 
 
-def perform_validations_with_rich(
-    config, vep_env_path, file_params, vep_rule_path=None
-):
+def perform_validations_with_rich(config, vep_env_path, file_params):
     root = logging.getLogger()
     old_level = root.level
     old_handlers = root.handlers[:]
@@ -181,8 +186,7 @@ def perform_validations_with_rich(
         root.setLevel(logging.INFO)
 
         validate_vep_version(config, vep_env_path)
-        if vep_rule_path is not None:
-            validate_vep_container_version(config, vep_rule_path)
+        validate_vep_container_version(config)
         validate_files(config, file_params)
         validate_extra_arguments(config)
     finally:
@@ -673,9 +677,7 @@ def get_arriba_version():
     if match:
         return match.group(1)
 
-    raise ValueError(
-        f"Cannot determine Arriba version from '{text}'."
-    )
+    raise ValueError(f"Cannot determine Arriba version from '{text}'.")
 
 
 def get_arriba_database(which):
@@ -804,6 +806,7 @@ def get_pileup_summaries_mem_mb(bam, attempt=1):
 # *--------------------------------------------------------------------------* #
 # * Functions to define containers for rules                                 * #
 # *--------------------------------------------------------------------------* #
+
 
 def get_container(which):
     if config["local_container"]:
