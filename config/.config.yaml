@@ -117,7 +117,7 @@ extend_transcript: 200
 # *==========================================================================* #
 args_extra:
   haplotypecaller: "--annotation OrientationBiasReadCounts"
-  mutect2: "--tumor-lod-to-emit 2"
+  mutect2: "--tumor-lod-to-emit 2 --read-filter NotSupplementaryAlignmentReadFilter"
   filter_mutect_calls: "--read-filter NotSupplementaryAlignmentReadFilter"
 
 # *==========================================================================* #

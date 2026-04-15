@@ -759,15 +759,11 @@ def get_star_genome_mem_mb(index):
     return max(mem_mb, get_star_index_size_mb(index))
 
 
-def get_star_sort_mem_mb(wildcards, attempt=1):
-    fastq_mb = 0
+def get_star_sort_mem_mb(wildcards, input, attempt=1):
+    bam_mb = estimate_bam_input_mb(resolve_single_input_path(input.bam))
+    mem_mb = max(8000, bam_mb * 2)
 
-    for fastq in get_fastq_paths(wildcards):
-        fastq_mb += estimate_fastq_input_mb(fastq)
-
-    mem_mb = max(4000, fastq_mb // 4)
-
-    return min(32000, mem_mb * attempt)
+    return min(90000, mem_mb * attempt)
 
 
 @lru_cache(maxsize=1)

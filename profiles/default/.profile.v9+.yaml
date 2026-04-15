@@ -20,6 +20,7 @@ set-threads:
   featurecounts_transposable_elements: 4
   star: 10
   star_index: 10
+  star_sort: 10
   haplotypecaller: 10
   mutect2: 10
   vep: 10

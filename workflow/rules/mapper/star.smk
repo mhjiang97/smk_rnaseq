@@ -30,10 +30,8 @@ rule star:
         gtf=config["gtf"],
         index=ancient(config["index_star"]),
     output:
-        bam_tmp=temp("star/{sample}/Aligned.out.bam"),
+        bam=temp("star/{sample}/Aligned.out.bam"),
         sj=protected("star/{sample}/SJ.out.tab"),
-        bam=protected("star/{sample}/{sample}.sorted.bam"),
-        csi=protected("star/{sample}/{sample}.sorted.bam.csi"),
     log:
         "logs/{sample}/star.log",
     conda:
@@ -46,3 +44,26 @@ rule star:
         args=get_extra_arguments("star"),
     script:
         "../../scripts/star.sh"
+
+
+rule star_sort:
+    input:
+        bam="star/{sample}/Aligned.out.bam",
+    output:
+        bam=protected("star/{sample}/{sample}.sorted.bam"),
+        csi=protected("star/{sample}/{sample}.sorted.bam.csi"),
+    log:
+        "logs/{sample}/star_sort.log",
+    threads: 1
+    resources:
+        mem_mb=get_star_sort_mem_mb,
+    shell:
+        """
+        samtools sort \\
+            -@ {threads} \\
+            -m $(({resources.mem_mb} / ({threads} + 2)))M \\
+            -o {output.bam} \\
+            --write-index \\
+            {input.bam} \\
+            1> {log} 2>&1
+        """

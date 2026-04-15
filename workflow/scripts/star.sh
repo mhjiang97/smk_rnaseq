@@ -8,9 +8,7 @@ set -x
 { sample=${snakemake_wildcards[sample]}
 gtf=${snakemake_input[gtf]}
 index=${snakemake_input[index]}
-bam_tmp=${snakemake_output[bam_tmp]}
 bam=${snakemake_output[bam]}
-csi=${snakemake_output[csi]}
 threads=${snakemake[threads]}
 layout=${snakemake_params[layout]}
 args=${snakemake_params[args]}
@@ -41,7 +39,5 @@ STAR \
     --outSAMattrIHstart 0 \
     --outSAMtype BAM Unsorted \
     --outSAMattributes NH XS HI AS nM NM MD jM jI MC ch \
-    --outSAMstrandField intronMotif
-
-samtools sort -@ "${threads}" -o "${bam}" --write-index "${bam_tmp}"; } \
+    --outSAMstrandField intronMotif; } \
 1> "${snakemake_log[0]}" 2>&1
