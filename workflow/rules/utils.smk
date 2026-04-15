@@ -661,21 +661,20 @@ def get_annovar_arguments():
     }
 
 
-def get_arriba_version(rule_file=workflow.source_path("caller/arriba.smk")):
-    with open(rule_file, "r") as f:
-        text = f.read()
+def get_arriba_version():
+    if config["local_container"]:
+        pattern = re.compile(r"arriba_(\d+(?:\.\d+)*)\.sif")
+        text = config["containers"].get("arriba")
+    else:
+        pattern = re.compile(r"docker://uhrigs/arriba:(\d+(?:\.\d+)*)")
+        text = CONTAINERS.get("arriba")
 
-    patterns = [
-        re.compile(r"docker://uhrigs/arriba:(\d+(?:\.\d+)*)"),
-        re.compile(r"arriba_(\d+(?:\.\d+)*)\.sif"),
-    ]
-    for pattern in patterns:
-        match = pattern.search(text)
-        if match:
-            return match.group(1)
+    match = pattern.search(text)
+    if match:
+        return match.group(1)
 
     raise ValueError(
-        f"Cannot determine Arriba version from '{rule_file}'."
+        f"Cannot determine Arriba version from '{text}'."
     )
 
 
@@ -800,3 +799,14 @@ def get_pileup_summaries_mem_mb(bam, attempt=1):
 
     # Retry with more memory only if a job actually fails.
     return min(8000, mem_mb * attempt)
+
+
+# *--------------------------------------------------------------------------* #
+# * Functions to define containers for rules                                 * #
+# *--------------------------------------------------------------------------* #
+
+def get_container(which):
+    if config["local_container"]:
+        return config["containers"].get(which)
+    else:
+        return CONTAINERS.get(which)

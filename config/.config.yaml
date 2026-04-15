@@ -119,3 +119,10 @@ args_extra:
   haplotypecaller: "--annotation OrientationBiasReadCounts"
   mutect2: "--tumor-lod-to-emit 2"
   filter_mutect_calls: "--read-filter NotSupplementaryAlignmentReadFilter"
+
+# *==========================================================================* #
+# * Container settings                                                       * #
+# *==========================================================================* #
+local_container: false
+containers:
+  arriba: ~/local/var/singularity/arriba_2.5.1.sif

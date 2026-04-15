@@ -18,7 +18,7 @@ rule arriba:
     shadow:
         "minimal"
     container:
-        "docker://uhrigs/arriba:2.5.1"
+        get_container("arriba")
     threads: 1
     resources:
         mem_mb=lambda wildcards, input, attempt: get_star_mem_mb(
@@ -45,7 +45,7 @@ rule draw_fusions:
     log:
         "logs/{sample}/arriba_draw_fusions.log",
     container:
-        "docker://uhrigs/arriba:2.5.1"
+        get_container("arriba")
     threads: 1
     params:
         cytobands=get_arriba_database("cytobands"),

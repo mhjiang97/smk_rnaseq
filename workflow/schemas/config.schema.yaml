@@ -13,6 +13,14 @@ properties:
   fusion:
     type: boolean
     default: true
+  local_container:
+    type: boolean
+    default: false
+  containers:
+    type: object
+    properties:
+      arriba:
+        type: ["string", "null"]
   dir_run:
     type: string
   dir_data:

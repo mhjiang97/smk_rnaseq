@@ -1,3 +1,7 @@
+CONTAINERS = {
+    "arriba": "docker://uhrigs/arriba:2.5.1",
+}
+
 TO_LEARN_READ_ORIENTATION = False
 
 PARAMETERS_CHECK = [
