@@ -76,6 +76,9 @@ def get_targets():
 # * Functions to validate files in the config file and VEP cache version     * #
 # *--------------------------------------------------------------------------* #
 def validate_vep_version(config, env_file):
+    if not TO_CALL_MUTATIONS or "vep" not in ANNOTATORS:
+        return None
+
     with open(env_file, "r") as f:
         config_vep = yaml.safe_load(f)
 
@@ -104,6 +107,9 @@ def validate_vep_version(config, env_file):
 
 
 def validate_vep_container_version(config):
+    if not TO_CALL_MUTATIONS or "vep" not in ANNOTATORS:
+        return None
+
     if config["local_container"]:
         text = config["containers"].get("vep")
         pattern = re.compile(r"ensembl-vep_(\d+(?:\.\d+)*)\.sif")
@@ -160,6 +166,29 @@ def validate_files(config, parameters):
             raise ValueError()
 
 
+def validate_annovar_database(config):
+    if not TO_CALL_MUTATIONS or "annovar" not in ANNOTATORS:
+        return None
+
+    paths = []
+    ps = config["protocols"].keys()
+    for p in ps:
+        values = config["protocols"][p]
+        for v in values:
+            paths.append(f"{config['cache_annovar']}/{GENOME2}_{v}.txt")
+
+    missing = [p for p in paths if not Path(p).exists()]
+    if missing:
+        files = ", ".join(f"[dim]'{f}'[/]" for f in missing)
+        logger.error(
+            f"[bold red]✖ Missing Annovar database file(s)[/]: {files} not found based on 'protocols' in config."
+        )
+        logger.info(
+            f"[bold cyan]Hint:[/] Please ensure the required Annovar database files are present in the cache directory specified by 'cache_annovar' in 'config/config.yaml'."
+        )
+        raise ValueError()
+
+
 def validate_extra_arguments(config):
     if "args_extra" in config:
         for r in config["args_extra"].keys():
@@ -173,7 +202,11 @@ def validate_extra_arguments(config):
                 raise ValueError()
 
 
-def perform_validations_with_rich(config, vep_env_path, file_params):
+def perform_validations_with_rich(
+    config,
+    vep_env_path=workflow.source_path("../envs/vep.yaml"),
+    file_params=PARAMETERS_CHECK,
+):
     root = logging.getLogger()
     old_level = root.level
     old_handlers = root.handlers[:]
@@ -188,6 +221,7 @@ def perform_validations_with_rich(config, vep_env_path, file_params):
         validate_vep_version(config, vep_env_path)
         validate_vep_container_version(config)
         validate_files(config, file_params)
+        validate_annovar_database(config)
         validate_extra_arguments(config)
     finally:
         root.handlers = old_handlers

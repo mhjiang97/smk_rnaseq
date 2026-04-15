@@ -8,8 +8,8 @@ from snakemake.utils import min_version, validate
 min_version("9.19.0")
 
 
-include: "utils.smk"
 include: "constants.smk"
+include: "utils.smk"
 
 
 configfile: "config/config.yaml"
@@ -90,7 +90,7 @@ wildcard_constraints:
 
 
 # *--------------------------------------------------------------------------* #
-# * Scatter-gather settings                                                  * #
+# * Enable scatter-gathering                                                 * #
 # *--------------------------------------------------------------------------* #
 scattergather:
     split_bed=1,
@@ -117,8 +117,4 @@ path_cache_vep = (
 # *--------------------------------------------------------------------------* #
 # * Additional validation for config parameters                              * #
 # *--------------------------------------------------------------------------* #
-perform_validations_with_rich(
-    config,
-    workflow.source_path("../envs/vep.yaml"),
-    PARAMETERS_CHECK,
-)
+perform_validations_with_rich(config)
