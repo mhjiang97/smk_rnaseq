@@ -742,9 +742,7 @@ def get_arriba_database(which):
 # * Functions to estimate memory requirements                                * #
 # *--------------------------------------------------------------------------* #
 def get_star_mem_mb(wildcards, input, attempt=1):
-    return get_star_genome_mem_mb(input.index) + get_star_sort_mem_mb(
-        wildcards, attempt
-    )
+    return get_star_genome_mem_mb(input.index)
 
 
 def get_star_genome_mem_mb(index):
@@ -754,9 +752,9 @@ def get_star_genome_mem_mb(index):
     if species in {"homo_sapiens", "mus_musculus"} or genome.startswith(
         ("GRCh", "GRCm")
     ):
-        mem_mb = 32000
+        mem_mb = 90000
     else:
-        mem_mb = 16000
+        mem_mb = 50000
 
     return max(mem_mb, get_star_index_size_mb(index))
 
@@ -767,8 +765,6 @@ def get_star_sort_mem_mb(wildcards, attempt=1):
     for fastq in get_fastq_paths(wildcards):
         fastq_mb += estimate_fastq_input_mb(fastq)
 
-    # Keep BAM sorting memory tied to input volume, but bounded so STAR
-    # jobs remain schedulable. Retries can request more only when needed.
     mem_mb = max(4000, fastq_mb // 4)
 
     return min(32000, mem_mb * attempt)
@@ -827,8 +823,8 @@ def resolve_single_input_path(path_or_paths):
     return Path(path_or_paths[0])
 
 
-def get_pileup_summaries_mem_mb(bam, attempt=1):
-    bam_mb = estimate_bam_input_mb(resolve_single_input_path(bam))
+def get_pileup_summaries_mem_mb(wildcards, input, attempt=1):
+    bam_mb = estimate_bam_input_mb(resolve_single_input_path(input.bam))
 
     # Start small, still scale with BAM size, and keep it bounded.
     mem_mb = max(2000, bam_mb // 10)

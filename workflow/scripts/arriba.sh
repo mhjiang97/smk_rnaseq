@@ -24,7 +24,6 @@ version=${snakemake_params[version]}
 layout=${snakemake_params[layout]}
 dir_tmp=${snakemake_params[dir_tmp]}
 threads=${snakemake[threads]}
-mem_mb=${snakemake_resources[mem_mb]}
 
 
 if [ "${layout}" == "paired-end" ]; then

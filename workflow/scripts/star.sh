@@ -7,14 +7,12 @@ set -x
 
 { sample=${snakemake_wildcards[sample]}
 gtf=${snakemake_input[gtf]}
+index=${snakemake_input[index]}
+bam_tmp=${snakemake_output[bam_tmp]}
 bam=${snakemake_output[bam]}
-bai=${snakemake_output[bai]}
-bam_renamed=${snakemake_output[bam_renamed]}
-bai_renamed=${snakemake_output[bai_renamed]}
+csi=${snakemake_output[csi]}
 threads=${snakemake[threads]}
-index=${snakemake_params[index]}
 layout=${snakemake_params[layout]}
-mem_mb_sort=${snakemake_resources[mem_mb_sort]}
 args=${snakemake_params[args]}
 
 out_dir=$(dirname "${bam}")
@@ -40,16 +38,10 @@ STAR \
     --outFileNamePrefix "${out_dir}"/ \
     --outSAMattrRGline ID:"${sample}" SM:"${sample}" LB:RNA PL:ILLUMINA \
     --sjdbGTFfile "${gtf}" \
-    --limitBAMsortRAM $((mem_mb_sort * 1024 * 1024)) \
-    --outBAMsortingThreadN "${threads}" \
     --outSAMattrIHstart 0 \
-    --outSAMtype BAM SortedByCoordinate \
+    --outSAMtype BAM Unsorted \
     --outSAMattributes NH XS HI AS nM NM MD jM jI MC ch \
     --outSAMstrandField intronMotif
 
-samtools index -@ "${threads}" "${bam}"
-
-cd "${out_dir}" || exit 1
-ln -s "$(basename "${bam}")" "$(basename "${bam_renamed}")"
-ln -s "$(basename "${bai}")" "$(basename "${bai_renamed}")"; } \
+samtools sort -@ "${threads}" -o "${bam}" --write-index "${bam_tmp}"; } \
 1> "${snakemake_log[0]}" 2>&1

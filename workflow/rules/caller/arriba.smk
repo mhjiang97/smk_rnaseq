@@ -21,9 +21,7 @@ rule arriba:
         get_container("arriba")
     threads: 1
     resources:
-        mem_mb=lambda wildcards, input, attempt: get_star_mem_mb(
-            wildcards, input, attempt
-        ),
+        mem_mb=get_star_mem_mb,
     params:
         blacklist=get_arriba_database("blacklist"),
         known_fusions=get_arriba_database("known_fusions"),

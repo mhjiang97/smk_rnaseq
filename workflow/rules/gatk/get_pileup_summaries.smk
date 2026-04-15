@@ -11,9 +11,7 @@ rule get_pileup_summaries:
     conda:
         "../../envs/gatk.yaml"
     resources:
-        mem_mb=lambda wildcards, input, attempt: get_pileup_summaries_mem_mb(
-            input.bam, attempt
-        ),
+        mem_mb=get_pileup_summaries_mem_mb,
         tmpdir=lambda wildcards: f"mutect2/{wildcards.sample}",
     params:
         args=get_extra_arguments("get_pileup_summaries"),
@@ -45,9 +43,7 @@ rule get_pileup_summaries_dna:
     conda:
         "../../envs/gatk.yaml"
     resources:
-        mem_mb=lambda wildcards, input, attempt: get_pileup_summaries_mem_mb(
-            input.bam, attempt
-        ),
+        mem_mb=get_pileup_summaries_mem_mb,
         tmpdir=lambda wildcards: f"mutect2/{wildcards.sample_dna}-dna",
     params:
         args=get_extra_arguments("get_pileup_summaries_dna"),

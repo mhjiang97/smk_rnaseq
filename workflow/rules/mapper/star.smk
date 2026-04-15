@@ -30,23 +30,18 @@ rule star:
         gtf=config["gtf"],
         index=ancient(config["index_star"]),
     output:
-        bam=protected("star/{sample}/Aligned.sortedByCoord.out.bam"),
-        bai=protected("star/{sample}/Aligned.sortedByCoord.out.bam.bai"),
+        bam_tmp=temp("star/{sample}/Aligned.out.bam"),
         sj=protected("star/{sample}/SJ.out.tab"),
-        bam_renamed="star/{sample}/{sample}.sorted.bam",
-        bai_renamed="star/{sample}/{sample}.sorted.bam.bai",
+        bam=protected("star/{sample}/{sample}.sorted.bam"),
+        csi=protected("star/{sample}/{sample}.sorted.bam.csi"),
     log:
         "logs/{sample}/star.log",
     conda:
         "../../envs/star.yaml"
     threads: 1
     resources:
-        mem_mb=lambda wildcards, input, attempt: get_star_mem_mb(
-            wildcards, input, attempt
-        ),
-        mem_mb_sort=lambda wildcards, attempt: get_star_sort_mem_mb(wildcards, attempt),
+        mem_mb=get_star_mem_mb,
     params:
-        index=config["index_star"],
         layout=get_library_layout,
         args=get_extra_arguments("star"),
     script:
