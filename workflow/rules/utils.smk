@@ -752,18 +752,18 @@ def get_star_genome_mem_mb(index):
     if species in {"homo_sapiens", "mus_musculus"} or genome.startswith(
         ("GRCh", "GRCm")
     ):
-        mem_mb = 90000
+        mem_mb = 150000
     else:
-        mem_mb = 50000
+        mem_mb = 100000
 
     return max(mem_mb, get_star_index_size_mb(index))
 
 
 def get_star_sort_mem_mb(wildcards, input, attempt=1):
     bam_mb = estimate_bam_input_mb(resolve_single_input_path(input.bam))
-    mem_mb = max(8000, bam_mb * 2)
+    mem_mb = max(20000, bam_mb * 2)
 
-    return min(90000, mem_mb * attempt)
+    return min(100000, mem_mb * attempt)
 
 
 @lru_cache(maxsize=1)

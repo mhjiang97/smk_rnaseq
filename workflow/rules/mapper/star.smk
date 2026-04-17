@@ -39,8 +39,10 @@ rule star:
     threads: 1
     resources:
         mem_mb=get_star_mem_mb,
+        tmpdir=lambda wildcards: f"star/{wildcards.sample}",
     params:
         layout=get_library_layout,
+        dir_tmp="star/{sample}/tmp",
         args=get_extra_arguments("star"),
     script:
         "../../scripts/star.sh"
@@ -57,11 +59,15 @@ rule star_sort:
     threads: 1
     resources:
         mem_mb=get_star_sort_mem_mb,
+        tmpdir=lambda wildcards: f"star/{wildcards.sample}",
+    params:
+        prefix="star/{sample}/tmp",
     shell:
         """
         samtools sort \\
             -@ {threads} \\
             -m $(({resources.mem_mb} / ({threads} + 2)))M \\
+            -T {params.prefix} \\
             -o {output.bam} \\
             --write-index \\
             {input.bam} \\

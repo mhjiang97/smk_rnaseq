@@ -11,6 +11,7 @@ index=${snakemake_input[index]}
 bam=${snakemake_output[bam]}
 threads=${snakemake[threads]}
 layout=${snakemake_params[layout]}
+dir_tmp=${snakemake_params[dir_tmp]}
 args=${snakemake_params[args]}
 
 out_dir=$(dirname "${bam}")
@@ -26,8 +27,11 @@ fi
 
 [[ "${files_in[0]}" == *".gz" ]] && cmd_read="zcat" || cmd_read="cat"
 
+[[ -d "${dir_tmp}" ]] && rm -rf "${dir_tmp}"
+
 STAR \
     "${args}" \
+    --outTmpDir "${dir_tmp}" \
     --runThreadN "${threads}" \
     --genomeDir "${index}" \
     --twopassMode Basic \

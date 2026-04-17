@@ -38,6 +38,8 @@ fi
 
 [[ "${files_in[0]}" == *".gz" ]] && cmd_read="zcat" || cmd_read="cat"
 
+[[ -d "${dir_tmp}" ]] && rm -rf "${dir_tmp}"
+
 arriba="/arriba_v${version}/arriba"
 
 STAR \
